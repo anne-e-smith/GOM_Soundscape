@@ -1,0 +1,110 @@
+---
+title: "Load_format_HMD"
+author: "Jessica McCordic"
+date: "2025-07-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## General workflow
+
+For each deployment
+- load in HMD data
+- summarize to hourly HMD
+- summarize to percentiles
+
+```{r Load_libraries}
+library(here)
+library(PAMscapes)
+library(PAMmisc)
+library(tcltk2) # handles interactively navigating to network file paths
+library(tidyverse)
+library(tictoc) # allows for time tracking of longer processes
+library(svDialogs) # allows for some interactive inputs
+source("AMP_pkgs_funs.R")
+```
+
+# Load hybrid millidecade data
+
+The function that handles all the data loading (regardless of format!)
+is `checkSoundscapeInput`. You can give this a single file or multiple
+files and it will load them up.
+
+```{r Load HMD}
+
+
+# List all deployment names in given directory
+
+# Since server folders are in a standard structure, use parent folder to get list of all deployments
+dep_names <- list.dirs("/home/jmccordic/PassiveAcoustics/DETECTOR_OUTPUT/PYTHON_SOUNDSCAPE_PYPAM/Raw/NEFSC_GOM/", recursive = FALSE)
+
+
+# ask user which site to run
+site_name <- dlg_input(message = "Site name (e.g., 'MONHEGAN')")$res
+
+# select the deployment(s) to load in
+dep_list <- as.list(dep_names[which(grepl(site_name, dep_names))])
+
+
+# Navigate to directory & list netCDF files with HMD data
+
+# set path for directory with netCDF files
+# Could maybe set this up as a list for AMP deployments
+# could have c("dep1","dep2","dep3") and then use map function 
+# for setting directory & running checkSoundscapeInput
+
+# deployment_id <- "PARKSAUSTRALIA_TWOROCKS_202105_TRW"
+
+nc_folder_list <- dep_list |>
+  map(~paste0({.}, "/NC")) |>
+  unlist()
+
+
+tic()
+hmd_all <- loadMultiscapeData(nc_folder_list, 
+                              timeBin = "1hour",
+                              binFunction = "median",
+                              binCount = TRUE,
+                              )
+toc()
+
+# loading in 8 deployments took ~37 MINUTES on R container...
+# -- might be faster to load individually and stitch together in a separate step?
+
+# hmd_hr <- hmd_all |>
+#   # remove HMD values < 10 Hz for better viz
+#     select(-c(HMD_0:HMD_9))
+
+# 
+#   ncFolder <- paste0(dep_name, "/NC")
+#   ncFiles <- list.files(ncFolder, pattern='nc$', full.names=TRUE)
+#   
+#   tic()
+#   hmd_data_hr <- loadSoundscapeData(ncFiles) |>
+#     # remove HMD values < 10 Hz for better viz
+#     select(-c(HMD_0:HMD_9))|> 
+#     # summarize into 1 hour bins
+#     binSoundscapeData(bin = "1hour", 
+#                       method = "median",
+#                       binCount = TRUE) |>
+#     # add deployment ID to data
+#     mutate(Dep_ID = deployment_id)
+#   toc()
+  
+  write_csv(hmd_all, 
+            file = paste0("/home/jmccordic/Jessica.Mccordic/Github/AMP_NPZ_Soundscapes/data/NEFSC_GOM_",site_name, "_HMD_hourlymed.csv"))
+
+# was ~27 seconds in NEFSC office
+# ~35 seconds on RStudio container via VPN
+```
+
+
+```{r Shiny_explorer}
+# explore data in shiny app, also helps figure out which viz function you're interested in
+runSoundscapeExplorer(hmd_all)
+
+```
+
