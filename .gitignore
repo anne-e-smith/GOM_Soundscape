@@ -2,3 +2,4 @@
 .Rhistory
 *.pper
 /.Rproj.user
+/data/HMD_hourly

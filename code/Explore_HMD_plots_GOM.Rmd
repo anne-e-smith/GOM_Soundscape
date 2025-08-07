@@ -1,0 +1,410 @@
+---
+title: "Explore_HMD_plots"
+output: html_document
+date: "2025-07-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load lib}
+library(PAMscapes)
+library(PAMmisc)
+library(tcltk2) # handles interactively navigating to network file paths
+library(tidyverse)
+library(tictoc) # allows for time tracking of longer processes
+library(svDialogs) # allows for some interactive inputs
+library(suntools) # tools for working with sunrise/sunset etc.
+library(suncalc) # more options for sun things
+```
+
+
+Merge hourly HMD data from all deployments
+
+```{r merge datasets}
+
+dir_hmd <- tk_choose.dir(caption = "Select folder with hourly HMD files (.csv)")
+  hmd_tables <- dir_hmd |>
+    # list all files with .csv extension
+    list.files(pattern = ".csv") |>
+    map_chr(~paste0(dir_hmd,"\\",  .)) |>
+    # use map to iterate read.delim() function over each file in the directory
+    map(~read_csv(.))
+
+all_hmd_og <- do.call("rbind", hmd_tables) 
+```
+
+
+```{r add columns}
+all_hmd_data <- all_hmd_og |>
+  # split up full project name into more helpful columns
+  separate(platform, c("Data_owner","Region","Dep_start","Site"), remove = FALSE)|>
+  mutate(
+    # Rework date-times
+    
+    # # assign local time zones based on NPZ location
+    # tz_local = case_when(npz_id == "Cod Grounds" | npz_id == "Solitary Islands" ~ "Australia/Canberra",
+    #                      npz_id == "Murat" ~ "Australia/South",
+    #                      TRUE ~ "Australia/West"),
+    # 
+    # # convert UTC time to local time
+    # Begin_datetime_local = with_tz(UTC, tzone = tz_local),
+    # 
+    # parse out specific elements for plotting
+    Begin_Hour_UTC = hour(UTC),
+    Month_UTC = month(UTC),
+    Hour_UTC = hour(UTC),
+    
+    # # Get hour (numeric)
+    # Begin_Hour_local = hour(Begin_datetime_local),
+    # # Get date without times
+    # Begin_date_local = date(Begin_datetime_local),
+    # # Get month
+    # Month_local = month(Begin_datetime_local),
+    # # Get just day of month
+    Day_month_UTC = mday(UTC),
+    # # re-create dates as all in the same year for plotting on single graph
+    Date_noyr = as_date(paste0("2000", "-", Month_UTC, "-", Day_month_UTC), format = "%Y-%m-%d"),
+    
+    Month_UTC_num = as.numeric(Month_UTC),
+    season_astro = case_when(
+      # Autumn: Sept 21 - Dec 20
+      between(Date_noyr, as_date("2000-09-21"), as_date("2000-12-20")) ~ "autumn",
+      # Winter: Dec 21 - March 19
+      between(Date_noyr, as_date("2000-12-21"), as_date("2000-12-31")) ~ "winter",
+      between(Date_noyr, as_date("2000-01-01"), as_date("2000-03-19")) ~ "summer",
+      # Spring: March 20 - June 20
+      between(Date_noyr, as_date("2000-03-20"), as_date("2000-06-20")) ~ "spring",
+      # Summer: all other dates (June 21 - Sept 20)
+      TRUE ~ "summer"
+    ),
+    season_astro = fct(season_astro),
+    season_astro = fct_relevel(season_astro, c("spring","summer","autumn","winter")),
+    
+    # add GOM region
+    GOM_region = case_when(
+      grepl("USTR", Site) ~ "Offshore GOM",
+      grepl("SB", Site) ~ "Stellwagen",
+      TRUE ~ "Inshore GOM"
+    )
+    
+  ) #|>
+  # specify row wise operations for suncalc functions
+  # rowwise()|>
+  # mutate(
+  #   sun_altitude = getSunlightPosition(date = UTC, lat = Latitude, lon = Longitude, keep = "altitude")$altitude, 
+  #   moon_illum = getMoonIllumination(date = UTC, keep = "fraction")$fraction
+  # )
+
+
+```
+
+
+```{r Soundscape explorer}
+
+runSoundscapeExplorer(all_hmd_data)
+
+```
+
+``` {r generate TOL data}
+
+all_tol_data <- all_hmd_data |>
+  group_by(Dep_ID) |>
+  createOctaveLevel(type = "tol")
+
+
+# get hourly quantiles for plotting
+TOL10khz_hour <- all_tol_data |>
+  # remove rows with NA values
+  filter(is.na(TOL_13) == FALSE) |>
+  # group by Dep_ID and hour, retain other grouping vars
+  group_by(network, npz_id, Dep_ID, Latitude, Longitude, Begin_Hour_local) |>
+  # calculate q10, q50, q90
+  summarise(
+    q10_tol = quantile(TOL_10000, 0.1),
+    med_tol = quantile(TOL_10000, 0.5),
+    q90_tol = quantile(TOL_10000, 0.9)
+  )
+
+
+# get monthly quantiles for plotting
+TOL10khz_month <- all_tol_data |>
+  # remove rows with NA values
+  filter(is.na(TOL_13) == FALSE) |>
+  # group by Dep_ID and hour, retain other grouping vars
+  group_by(network, npz_id, Dep_ID, Latitude, Longitude, Month_UTC) |>
+  # calculate q10, q50, q90
+  summarise(
+    q10_tol = quantile(TOL_10000, 0.1),
+    med_tol = quantile(TOL_10000, 0.5),
+    q90_tol = quantile(TOL_10000, 0.9)
+  )
+
+
+```
+
+### Plots to try out
+
+
+```{r diel line plots}
+
+
+# full time series of TOL values?
+# this looks horrid...try single NPZ 
+ggplot(data = all_tol_data |>
+         filter(npz_id == "Dampier"), 
+       aes(x = Begin_datetime_local,
+           y = TOL_10000)) +
+  geom_line()+
+  geom_line(aes(y = sun_altitude), 
+            color = "red")+
+  geom_line(aes(group = Begin_date_local,
+                color = Begin_date_local),
+             alpha = 0.8) +
+  scale_color_date(low = "blue",
+                   high = "yellow")+
+  facet_wrap(vars(Dep_ID),
+             nrow = 13,
+             scales = "free_x") +
+  theme_bw()
+
+
+
+# ggsave(paste0("figs/", "Timeseries_TOL10khz_facet_npz.png"), width=6, height=15,
+#        units="in", dpi=300)
+
+
+
+
+# Adapting code from Bella for diel plots
+
+ggplot(data = TOL10khz_hour,
+       aes(x = Begin_Hour_local,
+           fill = npz_id,
+           color = npz_id)) +
+  geom_ribbon(aes(ymin = q10_tol, 
+                  ymax = q90_tol,
+                  group = Dep_ID),
+              alpha = 0.2,
+              color = NA) +
+  geom_line(aes(y = q10_tol,
+                group = Dep_ID),
+            linewidth = 0.5,
+            alpha = 0.4) +
+  geom_line(aes(y = q90_tol,
+                group = Dep_ID),
+            linewidth = 0.5,
+            alpha = 0.4) +
+  geom_line(aes(y = med_tol,
+                group = Dep_ID),
+            linewidth = 1) + 
+  facet_grid(cols = vars(network))+
+  labs(y = "TOL_10kHz",
+       x = "Hour of day (local time)")+
+  # coord_polar()+
+  theme_bw()
+
+
+ggsave(paste0("figs/", "Diel_TOL10khz_facet_network.png"), width=8, height=10,
+       units="in", dpi=300)
+
+
+
+# snapping shrimp by month...?  --> Better approach would probably be to get temperature data from STs
+
+
+ggplot(data = TOL10khz_hour,
+       aes(x = Begin_Hour_UTC,
+           fill = npz_id,
+           color = npz_id)) +
+  geom_ribbon(aes(ymin = q10_tol, 
+                  ymax = q90_tol,
+                  group = Dep_ID),
+              alpha = 0.2,
+              color = NA) +
+  geom_line(aes(y = q10_tol,
+                group = Dep_ID),
+            linewidth = 0.5,
+            alpha = 0.4) +
+  geom_line(aes(y = q90_tol,
+                group = Dep_ID),
+            linewidth = 0.5,
+            alpha = 0.4) +
+  geom_line(aes(y = med_tol,
+                group = Dep_ID),
+            linewidth = 1) + 
+  facet_grid(rows = vars(network))+
+  theme_bw()
+
+
+
+```
+
+
+
+```{r PSD plots}
+# Seasonal PSD, facet by site
+
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="season_astro", 
+        facet="Site",
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")),
+        q=0.1) +
+  scale_color_manual(values = c("forestgreen","gold","darkorange","cornflowerblue")) +
+  theme_bw()
+
+
+ggsave(paste0("figs/", "PSD_season_sites.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+# Monthly PSDs, faceted by Site
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="Month_UTC_num", 
+        facet="Site",
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_month_facet_site.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+# By year, faceted by site
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="year", 
+        facet="Site",
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_year_facet_site.png"), width=12, height=8,
+       units="in", dpi=300)
+
+# By year, faceted by site, zoomed in to 1kHz
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="year", 
+        facet="Site",
+        freqRange = c(10, 1000),
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_year_facet_site_10-1000Hz.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+# anomaly to earliest year
+plotPSD(all_hmd_data |> filter(GOM_region == "Inshore GOM"), 
+        style="quantile", 
+        by="year", 
+        referenceLevel = 2020,
+        facet="Site",
+        # freqRange = c(10, 1000),
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_year_inshore_ref2020.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+# anomaly to earliest year
+plotPSD(all_hmd_data |> filter(GOM_region == "Offshore GOM"), 
+        style="quantile", 
+        by="year", 
+        referenceLevel = 2022,
+        facet="Site",
+        # freqRange = c(10, 1000),
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_year_offshore_ref2022.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+
+
+# Total PSDs by GOM region
+
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="Site", 
+        facet="GOM_region",
+        units = expression(paste("dB re 1", mu, "Pa"^"2", "Hz"^"-1")), 
+        q=0.1)+
+  theme_bw()
+
+ggsave(paste0("figs/", "PSD_site_facet_region.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+
+# Network PSDs
+plotPSD(all_hmd_data, 
+        style="quantile", 
+        by="npz_id", 
+        facet="network",
+        q=0.1)
+
+ggsave(paste0("figs/", "PSD_all_npz_facet_network.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+# All NPZs together, full PSD
+# bit of spaghetti soup but kind of interesting
+plotPSD(all_hmd_data, style="quantile", by="npz_id", q=0.1)
+
+ggsave(paste0("figs/", "PSD_all_npz.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+
+# hourly PSD by NPZ
+plotPSD(all_hmd_data, style="quantile", by="hour", facet="npz_id", q=0.1)
+
+
+# seaonal PSD across all NPZs
+season_plot <- plotPSD(all_hmd_data, 
+                       style="quantile", 
+                       by = "npz_id", 
+                       facet = "season_astro",
+                       ncol = 4,
+                       q=0.1)
+
+
+ggsave(paste0("figs/", "PSD_season_npz.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+
+plotPSD(all_hmd_data, style="quantile", by="npz_id", facet = "season_astro", q=0.1)
+
+
+
+
+ggsave(paste0("figs/", "PSD_season_network.png"), width=12, height=8,
+       units="in", dpi=300)
+
+# Monthly PSD across all NPZs
+plotPSD(all_hmd_data, style="quantile", by="month", q=0.1)
+
+
+# Monthly PSDs, faceted by network
+plotPSD(all_hmd_data, style="quantile", by="month", facet="network", q=0.1)
+
+ggsave(paste0("figs/", "PSD_month_facet_network.png"), width=12, height=8,
+       units="in", dpi=300)
+
+
+```
+
+
+
