@@ -3,6 +3,8 @@ title: "Load_format_HMD"
 author: "Jessica McCordic"
 date: "2025-07-17"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -99,12 +101,29 @@ toc()
 
 # was ~27 seconds in NEFSC office
 # ~35 seconds on RStudio container via VPN
-```
 
+  
+```
 
 ```{r Shiny_explorer}
 # explore data in shiny app, also helps figure out which viz function you're interested in
-runSoundscapeExplorer(hmd_all)
+runSoundscapeExplorer(USTR11_HMD)
 
 ```
 
+# Annie's working code starting below
+
+```{r}
+#load in files already made/in github repo
+
+LUBEC_HMD <- read.csv(here("data/NEFSC_GOM_LUBEC_HMD_hourlymed.csv"))
+MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymed.csv"))
+USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_HMD_hourlymed.csv"))
+USTR03_HMD <- read.csv(here("data/NEFSC_GOM_USTR03_HMD_hourlymed.csv"))
+USTR11_HMD <- read.csv(here("data/NEFSC_GOM_USTR11_HMD_hourlymed.csv"))
+
+#making new HMD files for rest of deployments
+
+
+
+```
