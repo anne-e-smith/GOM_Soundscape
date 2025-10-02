@@ -1,0 +1,230 @@
+---
+title: "Load_format_HMD"
+author: "Jessica McCordic"
+date: "2025-07-17"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## General workflow
+
+For each deployment
+- load in HMD data
+- summarize to hourly HMD
+- summarize to percentiles
+
+```{r Load_libraries}
+library(here)
+library(PAMscapes)
+library(PAMmisc)
+library(tcltk2) # handles interactively navigating to network file paths
+library(tidyverse)
+library(tictoc) # allows for time tracking of longer processes
+library(svDialogs) # allows for some interactive inputs
+#source("AMP_pkgs_funs.R")
+```
+
+# Load hybrid millidecade data
+
+The function that handles all the data loading (regardless of format!)
+is `checkSoundscapeInput`. You can give this a single file or multiple
+files and it will load them up.
+
+```{r Load HMD}
+
+
+# List all deployment names in given directory
+
+# Since server folders are in a standard structure, use parent folder to get list of all deployments
+dep_names <- list.dirs("/home/jmccordic/PassiveAcoustics/DETECTOR_OUTPUT/PYTHON_SOUNDSCAPE_PYPAM/Raw/NEFSC_GOM/", recursive = FALSE)
+
+
+# ask user which site to run
+site_name <- dlg_input(message = "Site name (e.g., 'MONHEGAN')")$res
+
+# select the deployment(s) to load in
+dep_list <- as.list(dep_names[which(grepl(site_name, dep_names))])
+
+
+# Navigate to directory & list netCDF files with HMD data
+
+# set path for directory with netCDF files
+# Could maybe set this up as a list for AMP deployments
+# could have c("dep1","dep2","dep3") and then use map function 
+# for setting directory & running checkSoundscapeInput
+
+# deployment_id <- "PARKSAUSTRALIA_TWOROCKS_202105_TRW"
+
+nc_folder_list <- dep_list |>
+  map(~paste0({.}, "/NC")) |>
+  unlist()
+
+
+tic()
+hmd_all <- loadMultiscapeData(nc_folder_list, 
+                              timeBin = "1hour",
+                              binFunction = "median",
+                              binCount = TRUE,
+                              )
+toc()
+
+# loading in 8 deployments took ~37 MINUTES on R container...
+# -- might be faster to load individually and stitch together in a separate step?
+
+# hmd_hr <- hmd_all |>
+#   # remove HMD values < 10 Hz for better viz
+#     select(-c(HMD_0:HMD_9))
+
+# 
+#   ncFolder <- paste0(dep_name, "/NC")
+#   ncFiles <- list.files(ncFolder, pattern='nc$', full.names=TRUE)
+#   
+#   tic()
+#   hmd_data_hr <- loadSoundscapeData(ncFiles) |>
+#     # remove HMD values < 10 Hz for better viz
+#     select(-c(HMD_0:HMD_9))|> 
+#     # summarize into 1 hour bins
+#     binSoundscapeData(bin = "1hour", 
+#                       method = "median",
+#                       binCount = TRUE) |>
+#     # add deployment ID to data
+#     mutate(Dep_ID = deployment_id)
+#   toc()
+  
+  write_csv(hmd_all, 
+            file = paste0("/home/jmccordic/Jessica.Mccordic/Github/AMP_NPZ_Soundscapes/data/NEFSC_GOM_",site_name, "_HMD_hourlymed.csv"))
+
+# was ~27 seconds in NEFSC office
+# ~35 seconds on RStudio container via VPN
+
+  
+```
+
+```{r Shiny_explorer}
+# explore data in shiny app, also helps figure out which viz function you're interested in
+runSoundscapeExplorer(USTR11_HMD)
+
+```
+
+# Annie's working code starting below
+
+```{r}
+
+LUBEC_HMD <- read.csv(here("data/NEFSC_GOM_LUBEC_HMD_hourlymed.csv"))
+LUBEC_HMD$site = "Lubec"
+LUBEC_HMD$UTC <- as.POSIXct(LUBEC_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymed.csv"))
+MDR_HMD$site = "MDR"
+MDR_HMD$UTC <- as.POSIXct(MDR_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_HMD_hourlymed.csv"))
+USTR01_HMD$site = "USTR01"
+USTR01_HMD$UTC <- as.POSIXct(USTR01_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+USTR03_HMD <- read.csv(here("data/NEFSC_GOM_USTR03_HMD_hourlymed.csv"))
+USTR03_HMD$site = "USTR03"
+USTR03_HMD$UTC <- as.POSIXct(USTR03_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+USTR11_HMD <- read.csv(here("data/NEFSC_GOM_USTR11_HMD_hourlymed.csv"))
+USTR11_HMD$site = "USTR11"
+USTR11_HMD$UTC <- as.POSIXct(USTR11_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+MONHEGAN_HMD <- read.csv(here("data/NEFSC_GOM_MONHEGAN_HMD_hourlymed.csv"))
+MONHEGAN_HMD$site = "Monhegan"
+MONHEGAN_HMD$UTC <- as.POSIXct(MONHEGAN_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+PORTLAND_HMD <- read.csv(here("data/NEFSC_GOM_PORTLAND_HMD_hourlymed.csv"))
+PORTLAND_HMD$site = "Portland"
+PORTLAND_HMD$UTC <- as.POSIXct(PORTLAND_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+SB03_HMD <- read.csv(here("data/NEFSC_GOM_SB03_HMD_hourlymed.csv"))
+SB03_HMD$site = "SB03"
+SB03_HMD$label = "NC"
+SB03_HMD$binCount = "60"
+SB03_HMD$binCount = as.integer(SB03_HMD$binCount)
+SB03_HMD$UTC <- as.POSIXct(SB03_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+SB03_HMD <- SB03_HMD[-c(2,3,4,5,6,7,8,9,10,11)]
+#SB03_HMD <- SB03_HMD[-c(20)]
+YORK_HMD <- read.csv(here("data/NEFSC_GOM_YORK_HMD_hourlymed.csv"))
+YORK_HMD$site = "York"
+YORK_HMD$label = "NC"
+YORK_HMD$binCount = "60"
+YORK_HMD$binCount = as.integer(YORK_HMD$binCount)
+YORK_HMD$UTC <- as.POSIXct(YORK_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+
+
+```
+
+#plots
+
+```{r}
+USTR_sites <- USTR01_HMD %>%
+  full_join(USTR03_HMD)%>%
+  full_join(USTR11_HMD)
+
+coastal_sites <- LUBEC_HMD %>% #coastal sites and SB03
+  full_join(MDR_HMD) %>%
+  full_join(MONHEGAN_HMD) %>%
+  full_join(PORTLAND_HMD) %>%
+  full_join(YORK_HMD)%>%
+  full_join(SB03_HMD)
+  
+ALL_sites <- USTR_sites %>%
+  full_join(coastal_sites)
+
+runSoundscapeExplorer(USTR_sites)
+
+plotPSD(x=SB03_HMD, style='quantile', q=0.99)+
+  labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
+  theme_bw()
+
+all_sites <- plotPSD(x=ALL_sites, style='quantile', q=0.99, facet='site')+
+  labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
+  theme_bw()+
+  guides(color= guide_legend(title= "Site"))
+
+all_sites_month<- plotPSD(x=ALL_sites, style='quantile', q=0, by='month', facet= 'site') +
+  labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
+  theme_bw()+
+  guides(color= guide_legend(title= "Month"))
+
+
+
+ggsave(here("figs", "all_sites_month.png"), all_sites_month, width= 14, height= 10, units= "in")
+ggsave(here("figs", "all_sites.png"), all_sites, width= 14, height= 10, units= "in")
+
+```
+# LTSAs
+
+```{r}
+
+USTR01_LTSA = plotLTSA(x= USTR01_HMD,
+                       title = "USTR01")
+USTR03_LTSA = plotLTSA(x= USTR03_HMD,
+                       title = "USTR03")
+USTR11_LTSA = plotLTSA(x= USTR11_HMD,
+                       title = "USTR11")
+LUBEC_LTSA = plotLTSA(x= LUBEC_HMD,
+                       title = "Lubec")
+MDR_LTSA = plotLTSA(x= MDR_HMD,
+                       title = "MDR")
+MONHEGAN_LTSA = plotLTSA(x= MONHEGAN_HMD,
+                       title = "Monhegan")
+PORTLAND_LTSA = plotLTSA(x= PORTLAND_HMD,
+                       title = "Portland")
+YORK_LTSA = plotLTSA(x= YORK_HMD,
+                       title = "York")
+SB03_LTSA = plotLTSA(x= SB03_HMD,
+                       title = "SB03")
+
+
+allSites_LTSA = plotLTSA(x=ALL_sites, facet= 'site')+
+  theme_bw()
+ggsave(here("figs", "allSites_LTSAs.png"), allSites_LTSA, width= 14, height= 12, units= "in")
+
+
+plot(allSites_LTSA)
+
+
+
+
+```
