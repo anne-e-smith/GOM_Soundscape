@@ -225,6 +225,68 @@ ggsave(here("figs", "allSites_LTSAs.png"), allSites_LTSA, width= 14, height= 12,
 plot(allSites_LTSA)
 
 
+```
+#seasonal octave level plots
+```{r}
+#convert to OLs
 
+LUBEC_OL <- createOctaveLevel(LUBEC_HMD, type= 'ol')
+MDR_OL <- createOctaveLevel(MDR_HMD, type= 'ol')
+MONHEGAN_OL <- createOctaveLevel(MONHEGAN_HMD, type= 'ol')
+PORTLAND_OL <- createOctaveLevel(PORTLAND_HMD, type= 'ol')
+SB03_OL <- createOctaveLevel(SB03_HMD, type= 'ol')
+USTR01_OL <- createOctaveLevel(USTR01_HMD, type= 'ol')
+USTR03_OL <- createOctaveLevel(USTR03_HMD, type= 'ol')
+USTR11_OL <- createOctaveLevel(USTR11_HMD, type= 'ol')
+YORK_OL <- createOctaveLevel(YORK_HMD, type= 'ol')
+
+all_OLSites <- LUBEC_OL %>%
+  full_join(MDR_OL) %>%
+  full_join(MONHEGAN_OL) %>%
+  full_join(PORTLAND_OL) %>%
+  full_join(YORK_OL) %>%
+  full_join(SB03_OL) %>%
+  full_join(USTR01_OL) %>%
+  full_join(USTR03_OL) %>%
+  full_join(USTR11_OL)
+
+all_OLSites$month <- month(all_OLSites$UTC)
+
+all_OLSites$season = case_when(all_OLSites$month == 1 ~ "winter",
+                            all_OLSites$month == 2 ~ "winter",
+                            all_OLSites$month == 3 ~ "spring",
+                            all_OLSites$month == 4 ~ "spring",
+                            all_OLSites$month == 5 ~ "spring",
+                            all_OLSites$month == 6 ~ "summer",
+                            all_OLSites$month == 7 ~ "summer",
+                            all_OLSites$month == 8 ~ "summer",
+                            all_OLSites$month == 9 ~ "fall",
+                            all_OLSites$month == 10 ~ "fall",
+                            all_OLSites$month == 11 ~ "fall",
+                            all_OLSites$month == 12 ~ "winter")
+  
+all_OLSiteSeason<- all_OLSites %>% 
+  group_by(season, site) %>% 
+  dplyr::summarize(med_16 = median(OL_16, na.rm=TRUE),med_31.5 = median(OL_31.5, na.rm=TRUE),med_63 = median(OL_63, na.rm=TRUE),med_125 = median(OL_125, na.rm=TRUE),med_250 = median(OL_250, na.rm=TRUE),med_500 = median(OL_500, na.rm=TRUE), med_1000 = median(OL_1000, na.rm=TRUE),med_2000= median(OL_2000, na.rm= TRUE), med_4000 = median(OL_4000, na.rm=TRUE),med_8000= median(OL_8000, na.rm= TRUE), med_16000 = median(OL_16000, na.rm=TRUE))
+
+
+melted_all_OLSiteSeason <- melt(all_OLSiteSeason, id= c("season", "site"), variable.name= "OL_band",
+                                value.name= "med_seasonal_SPL")
+
+melted_all_OLSiteSeason$season = factor(melted_all_OLSiteSeason$season,
+                                        levels= c("winter", "spring", "summer", "fall"),
+                                        labels= c("Winter", "Spring", "Summer", "Fall"))
+melted_all_OLSiteSeason$OL_band = factor(melted_all_OLSiteSeason$OL_band,
+                                        levels= c("med_16", "med_31.5", "med_63", "med_125", "med_250", "med_500", "med_1000", "med_2000", "med_4000", "med_8000", "med_16000"),
+                                        labels= c("16", "31.5", "63", "125", "250","500", "1000", "2000", "4000", "8000", "16000"))
+
+ggplot(melted_all_OLSiteSeason, aes(x= OL_band, y = med_seasonal_SPL, color= season, group= season))+
+  geom_point()+ geom_line() +
+  facet_wrap(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'SB03', 'USTR01', 'USTR03', 'USTR11', 'York'))~., ncol= 3)+
+  theme_bw()+
+  xlab("Octave band (Hz)")+
+  ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
+  scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
+  guides(color= guide_legend(title= "Season"))
 
 ```
