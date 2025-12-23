@@ -12,3 +12,9 @@ data/NEFSC_GOM_MONHEGAN_HMD_hourlymed.csv
 data/NEFSC_GOM_PORTLAND_HMD_hourlymed.csv
 data/NEFSC_GOM_YORK_HMD_hourlymed.csv
 data/NEFSC_GOM_SB03_HMD_hourlymed.csv
+data/Feb23_AEON1.csv
+data/Feb21_AEON4.csv
+data/Feb23_AEON2.csv
+data/Jan22_AEON1.csv
+data/Jan22_AEON3.csv
+*.csv
