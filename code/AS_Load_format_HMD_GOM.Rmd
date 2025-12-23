@@ -22,6 +22,7 @@ For each deployment
 library(here)
 library(PAMscapes)
 library(PAMmisc)
+library(reshape2)
 library(tcltk2) # handles interactively navigating to network file paths
 library(tidyverse)
 library(tictoc) # allows for time tracking of longer processes
@@ -270,7 +271,7 @@ all_OLSiteSeason<- all_OLSites %>%
   dplyr::summarize(med_16 = median(OL_16, na.rm=TRUE),med_31.5 = median(OL_31.5, na.rm=TRUE),med_63 = median(OL_63, na.rm=TRUE),med_125 = median(OL_125, na.rm=TRUE),med_250 = median(OL_250, na.rm=TRUE),med_500 = median(OL_500, na.rm=TRUE), med_1000 = median(OL_1000, na.rm=TRUE),med_2000= median(OL_2000, na.rm= TRUE), med_4000 = median(OL_4000, na.rm=TRUE),med_8000= median(OL_8000, na.rm= TRUE), med_16000 = median(OL_16000, na.rm=TRUE))
 
 
-melted_all_OLSiteSeason <- melt(all_OLSiteSeason, id= c("season", "site"), variable.name= "OL_band",
+melted_all_OLSiteSeason <- melt(all_OLSiteSeason, id= c("season", "site"), variable.name= "TOL_band",
                                 value.name= "med_seasonal_SPL")
 
 melted_all_OLSiteSeason$season = factor(melted_all_OLSiteSeason$season,
@@ -288,5 +289,74 @@ ggplot(melted_all_OLSiteSeason, aes(x= OL_band, y = med_seasonal_SPL, color= sea
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   guides(color= guide_legend(title= "Season"))
+
+```
+#TOBs
+```{r}
+
+#convert to TOLs
+
+LUBEC_TOL <- createOctaveLevel(LUBEC_HMD, type= 'tol')
+MDR_TOL <- createOctaveLevel(MDR_HMD, type= 'tol')
+MONHEGAN_TOL <- createOctaveLevel(MONHEGAN_HMD, type= 'tol')
+PORTLAND_TOL <- createOctaveLevel(PORTLAND_HMD, type= 'tol')
+SB03_TOL <- createOctaveLevel(SB03_HMD, type= 'tol')
+USTR01_TOL <- createOctaveLevel(USTR01_HMD, type= 'tol')
+USTR03_TOL <- createOctaveLevel(USTR03_HMD, type= 'tol')
+USTR11_TOL <- createOctaveLevel(USTR11_HMD, type= 'tol')
+YORK_TOL <- createOctaveLevel(YORK_HMD, type= 'tol')
+
+all_TOLSites <- LUBEC_TOL %>%
+  full_join(MDR_TOL) %>%
+  full_join(MONHEGAN_TOL) %>%
+  full_join(PORTLAND_TOL) %>%
+  full_join(YORK_TOL) %>%
+  full_join(SB03_TOL) %>%
+  full_join(USTR01_TOL) %>%
+  full_join(USTR03_TOL) %>%
+  full_join(USTR11_TOL)
+
+all_TOLSites$month <- month(all_TOLSites$UTC)
+
+all_TOLSites$season = case_when(all_TOLSites$month == 1 ~ "winter",
+                            all_TOLSites$month == 2 ~ "winter",
+                            all_TOLSites$month == 3 ~ "spring",
+                            all_TOLSites$month == 4 ~ "spring",
+                            all_TOLSites$month == 5 ~ "spring",
+                            all_TOLSites$month == 6 ~ "summer",
+                            all_TOLSites$month == 7 ~ "summer",
+                            all_TOLSites$month == 8 ~ "summer",
+                            all_TOLSites$month == 9 ~ "fall",
+                            all_TOLSites$month == 10 ~ "fall",
+                            all_TOLSites$month == 11 ~ "fall",
+                            all_TOLSites$month == 12 ~ "winter")
+  
+all_TOLSiteSeason<- all_TOLSites %>% 
+  group_by(season, site) %>% 
+  dplyr::summarize(med_16 = median(TOL_16, na.rm=TRUE), med_20= median(TOL_20, med_25 = median(TOL_25, na.rm=TRUE), na.rm=TRUE), med_31.5 = median(TOL_31.5, na.rm=TRUE), med_40 = median(TOL_40, na.rm=TRUE), med_50 = median(TOL_50, na.rm=TRUE), med_63 = median(TOL_63, na.rm=TRUE),med_80 = median(TOL_80, na.rm=TRUE), med_100 = median(TOL_100, na.rm=TRUE), med_125 = median(TOL_125, na.rm=TRUE),med_160 = median(TOL_160, na.rm=TRUE), med_200 = median(TOL_200, na.rm=TRUE), med_250 = median(TOL_250, na.rm=TRUE), med_315 = median(TOL_315, na.rm=TRUE), med_400 = median(TOL_400, na.rm=TRUE),med_500 = median(TOL_500, na.rm=TRUE), med_630 = median(TOL_630, na.rm=TRUE), med_800 = median(TOL_800, na.rm=TRUE),med_1000 = median(TOL_1000, na.rm=TRUE), med_1250 = median(TOL_1250, na.rm=TRUE), med_1600 = median(TOL_1600, na.rm=TRUE),med_2000= median(TOL_2000, na.rm= TRUE),med_2500 = median(TOL_2500, na.rm=TRUE), med_3150 = median(TOL_3150, na.rm=TRUE),med_4000 = median(TOL_4000, na.rm=TRUE), med_5000 = median(TOL_5000, na.rm=TRUE), med_6300 = median(TOL_6300, na.rm=TRUE),med_8000= median(TOL_8000, na.rm= TRUE),med_10000 = median(TOL_10000, na.rm=TRUE), med_12500 = median(TOL_12500, na.rm=TRUE),med_16000 = median(TOL_16000, na.rm=TRUE), med_20000 = median(TOL_20000, na.rm=TRUE))
+
+
+melted_all_TOLSiteSeason <- melt(all_TOLSiteSeason, id= c("season", "site"), variable.name= "TOL_band",
+                                value.name= "med_seasonal_SPL")
+
+melted_all_TOLSiteSeason$season = factor(melted_all_TOLSiteSeason$season,
+                                        levels= c("winter", "spring", "summer", "fall"),
+                                        labels= c("Winter", "Spring", "Summer", "Fall"))
+melted_all_TOLSiteSeason$TOL_band = factor(melted_all_TOLSiteSeason$TOL_band,
+                                        levels= c("med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300", "med_8000","med_10000","med_12500", "med_16000", "med_20000"),
+                                        labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "10000", "12500", "16000", "20000"))
+
+ggplot(melted_all_TOLSiteSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+  geom_point(size= 1)+ geom_line() +
+  facet_wrap(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'SB03', 'USTR01', 'USTR03', 'USTR11', 'York'))~., ncol= 3)+
+  theme_bw()+
+  xlab("Third-octave band (Hz)")+
+  ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
+  scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
+  guides(color= guide_legend(title= "Season"))+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
 
 ```
