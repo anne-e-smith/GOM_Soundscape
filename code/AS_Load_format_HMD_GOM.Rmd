@@ -154,9 +154,90 @@ YORK_HMD$UTC <- as.POSIXct(YORK_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT
 
 
 ```
+#aeon data- TOLs
+```{r}
+AEON1_Jan <- read.csv(here("data/Jan22_AEON1.csv"))
+AEON1_Jan <- AEON1_Jan[-c(2:48, 89:115)]
+colnames(AEON1_Jan)[1] <- "UTC"
+AEON1_Jan$UTC <- as.POSIXct(AEON1_Jan$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON1_Feb <- read.csv(here("data/Feb23_AEON1.csv"))
+AEON1_Feb <- AEON1_Feb[-c(2:11, 57:83)]
+colnames(AEON1_Feb)[1] <- "UTC"
+AEON1_Feb$UTC <- as.POSIXct(AEON1_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 
+AEON1 <- AEON1_Jan %>%
+  full_join(AEON1_Feb)
+AEON1$site = "AEON1"
+
+AEON2_Jan <- read.csv(here("data/Jan22_AEON2.csv"))
+AEON2_Jan <- AEON2_Jan[-c(2:47, 88:114)]
+colnames(AEON2_Jan)[1] <- "UTC"
+AEON2_Jan$UTC <- as.POSIXct(AEON2_Jan$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON2_Feb <- read.csv(here("data/Feb23_AEON2.csv"))
+AEON2_Feb <- AEON2_Feb[-c(2:11, 57:83)]
+colnames(AEON2_Feb)[1] <- "UTC"
+AEON2_Feb$UTC <- as.POSIXct(AEON2_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+
+AEON2 <- AEON2_Jan %>%
+  full_join(AEON2_Feb)
+AEON2$site = "AEON2"
+
+AEON3_Jul <- read.csv(here("data/Jul21_AEON3.csv"))
+AEON3_Jul <- AEON3_Jul[-c(2:27, 68:94)]
+colnames(AEON3_Jul)[1] <- "UTC"
+AEON3_Jul$UTC <- as.POSIXct(AEON3_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON3_Jan <- read.csv(here("data/Jan22_AEON3.csv"))
+AEON3_Jan <- AEON3_Jan[-c(2:48, 89:115)]
+colnames(AEON3_Jan)[1] <- "UTC"
+AEON3_Jan$UTC <- as.POSIXct(AEON3_Jan$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON3_Feb <- read.csv(here("data/Feb23_AEON3.csv"))
+AEON3_Feb <- AEON3_Feb[-c(2:11, 57:83)]
+colnames(AEON3_Feb)[1] <- "UTC"
+AEON3_Feb$UTC <- as.POSIXct(AEON3_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+
+AEON3 <- AEON3_Jan %>%
+  full_join(AEON3_Feb) %>%
+  full_join(AEON3_Jul)
+AEON3$site = "AEON3"
+
+AEON4_Feb<- read.csv(here("data/Feb21_AEON4.csv"))
+AEON4_Feb <- AEON4_Feb[-c(2:11, 42:64)]
+colnames(AEON4_Feb)[1] <- "UTC"
+AEON4_Feb$UTC <- as.POSIXct(AEON4_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON4_Jan <- read.csv(here("data/Jan22_AEON4.csv"))
+AEON4_Jan <- AEON4_Jan[-c(2:11, 42:64)]
+colnames(AEON4_Jan)[1] <- "UTC"
+AEON4_Jan$UTC <- as.POSIXct(AEON4_Jan$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON4_Jul <- read.csv(here("data/Jul21_AEON4.csv"))
+AEON4_Jul <- AEON4_Jul[-c(2:27, 68:94)]
+colnames(AEON4_Jul)[1] <- "UTC"
+AEON4_Jul$UTC <- as.POSIXct(AEON4_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+
+AEON4 <- AEON4_Jan %>%
+  full_join(AEON4_Feb) %>%
+  full_join(AEON4_Jul)
+AEON4$site = "AEON4"
+
+AEON5_Feb<- read.csv(here("data/Feb21_AEON5.csv"))
+AEON5_Feb <- AEON5_Feb[-c(2:11, 57:81)]
+colnames(AEON5_Feb)[1] <- "UTC"
+AEON5_Feb$UTC <- as.POSIXct(AEON5_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON5_Jan <- read.csv(here("data/Jan22_AEON5.csv"))
+AEON5_Jan <- AEON5_Jan[-c(2:11, 42:64)]
+colnames(AEON5_Jan)[1] <- "UTC"
+AEON5_Jan$UTC <- as.POSIXct(AEON5_Jan$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+AEON5_Jul <- read.csv(here("data/Jul21_AEON5.csv"))
+AEON5_Jul <- AEON5_Jul[-c(2:29, 70:96)]
+colnames(AEON5_Jul)[1] <- "UTC"
+AEON5_Jul$UTC <- as.POSIXct(AEON5_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+
+AEON5 <- AEON5_Jan %>%
+  full_join(AEON5_Feb) %>%
+  full_join(AEON5_Jul)
+AEON5$site = "AEON5"
+
+```
 #plots
-
 ```{r}
 USTR_sites <- USTR01_HMD %>%
   full_join(USTR03_HMD)%>%
@@ -195,7 +276,6 @@ ggsave(here("figs", "all_sites.png"), all_sites, width= 14, height= 10, units= "
 
 ```
 # LTSAs
-
 ```{r}
 
 USTR01_LTSA = plotLTSA(x= USTR01_HMD,
@@ -291,7 +371,7 @@ ggplot(melted_all_OLSiteSeason, aes(x= OL_band, y = med_seasonal_SPL, color= sea
   guides(color= guide_legend(title= "Season"))
 
 ```
-#TOBs
+#TOLs- nefsc
 ```{r}
 
 #convert to TOLs
@@ -318,18 +398,18 @@ all_TOLSites <- LUBEC_TOL %>%
 
 all_TOLSites$month <- month(all_TOLSites$UTC)
 
-all_TOLSites$season = case_when(all_TOLSites$month == 1 ~ "winter",
-                            all_TOLSites$month == 2 ~ "winter",
-                            all_TOLSites$month == 3 ~ "spring",
-                            all_TOLSites$month == 4 ~ "spring",
-                            all_TOLSites$month == 5 ~ "spring",
-                            all_TOLSites$month == 6 ~ "summer",
-                            all_TOLSites$month == 7 ~ "summer",
-                            all_TOLSites$month == 8 ~ "summer",
-                            all_TOLSites$month == 9 ~ "fall",
-                            all_TOLSites$month == 10 ~ "fall",
-                            all_TOLSites$month == 11 ~ "fall",
-                            all_TOLSites$month == 12 ~ "winter")
+all_TOLSites$season = case_when(all_TOLSites$month == 1 ~ "Winter",
+                            all_TOLSites$month == 2 ~ "Winter",
+                            all_TOLSites$month == 3 ~ "Spring",
+                            all_TOLSites$month == 4 ~ "Spring",
+                            all_TOLSites$month == 5 ~ "Spring",
+                            all_TOLSites$month == 6 ~ "Summer",
+                            all_TOLSites$month == 7 ~ "Summer",
+                            all_TOLSites$month == 8 ~ "Summer",
+                            all_TOLSites$month == 9 ~ "Fall",
+                            all_TOLSites$month == 10 ~ "Fall",
+                            all_TOLSites$month == 11 ~ "Fall",
+                            all_TOLSites$month == 12 ~ "Winter")
   
 all_TOLSiteSeason<- all_TOLSites %>% 
   group_by(season, site) %>% 
@@ -339,9 +419,7 @@ all_TOLSiteSeason<- all_TOLSites %>%
 melted_all_TOLSiteSeason <- melt(all_TOLSiteSeason, id= c("season", "site"), variable.name= "TOL_band",
                                 value.name= "med_seasonal_SPL")
 
-melted_all_TOLSiteSeason$season = factor(melted_all_TOLSiteSeason$season,
-                                        levels= c("winter", "spring", "summer", "fall"),
-                                        labels= c("Winter", "Spring", "Summer", "Fall"))
+
 melted_all_TOLSiteSeason$TOL_band = factor(melted_all_TOLSiteSeason$TOL_band,
                                         levels= c("med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300", "med_8000","med_10000","med_12500", "med_16000", "med_20000"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "10000", "12500", "16000", "20000"))
@@ -356,7 +434,76 @@ ggplot(melted_all_TOLSiteSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= s
   guides(color= guide_legend(title= "Season"))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+```
+#AEON plots
+```{r}
+all_sites_AEON <- AEON1 %>%
+  full_join(AEON2)%>%
+  full_join(AEON3)%>%
+  full_join(AEON4)%>%
+  full_join(AEON5)
+
+all_sites_AEON$month <- month(all_sites_AEON$UTC)
+
+all_sites_AEON$season = case_when(all_sites_AEON$month == 1 ~ "Winter",
+                            all_sites_AEON$month == 2 ~ "Winter",
+                            all_sites_AEON$month == 3 ~ "Spring",
+                            all_sites_AEON$month == 4 ~ "Spring",
+                            all_sites_AEON$month == 5 ~ "Spring",
+                            all_sites_AEON$month == 6 ~ "Summer",
+                            all_sites_AEON$month == 7 ~ "Summer",
+                            all_sites_AEON$month == 8 ~ "Summer",
+                            all_sites_AEON$month == 9 ~ "Fall",
+                            all_sites_AEON$month == 10 ~ "Fall",
+                            all_sites_AEON$month == 11 ~ "Fall",
+                            all_sites_AEON$month == 12 ~ "Winter")
+
+all_sites_AEONSeason<- all_sites_AEON %>% 
+  group_by(season, site) %>% 
+  dplyr::summarize(med_1.0= median(Ddec1.0.Hz, na.rom= TRUE), med_1.3= median(Ddec1.3.Hz, na.rom= TRUE),med_1.6= median(Ddec1.6.Hz, na.rom= TRUE),med_2.0= median(Ddec2.0.Hz, na.rom= TRUE),med_3.1= median(Ddec3.1.Hz, na.rom= TRUE), med_4.0= median(Ddec4.0.Hz, na.rom= TRUE), med_5.0= median(Ddec5.0.Hz, na.rom= TRUE),med_6.3= median(Ddec6.3.Hz, na.rom= TRUE),med_8.0= median(Ddec8.0.Hz, na.rom= TRUE),med_10= median(Ddec10.Hz, na.rom= TRUE),med_13= median(Ddec13.Hz, na.rom= TRUE), med_16 = median(Ddec16.Hz, na.rm=TRUE), med_20= median(Ddec20.Hz, na.rom= TRUE), med_25 = median(Ddec25.Hz, na.rm=TRUE), med_31.5 = median(Ddec31.Hz, na.rm=TRUE), med_40 = median(Ddec40.Hz, na.rm=TRUE), med_50 = median(Ddec50.Hz, na.rm=TRUE), med_63 = median(Ddec63.Hz, na.rm=TRUE),med_80 = median(Ddec80.Hz, na.rm=TRUE), med_100 = median(Ddec100.Hz, na.rm=TRUE), med_125 = median(Ddec125.Hz, na.rm=TRUE),med_160 = median(Ddec160.Hz, na.rm=TRUE), med_200 = median(Ddec200.Hz, na.rm=TRUE), med_250 = median(Ddec250.Hz, na.rm=TRUE), med_315 = median(Ddec315.Hz, na.rm=TRUE), med_400 = median(Ddec400.Hz, na.rm=TRUE),med_500 = median(Ddec500.Hz, na.rm=TRUE), med_630 = median(Ddec630.Hz, na.rm=TRUE), med_800 = median(Ddec800.Hz, na.rm=TRUE),med_1000 = median(Ddec1000.Hz, na.rm=TRUE), med_1250 = median(Ddec1250.Hz, na.rm=TRUE), med_1600 = median(Ddec1600.Hz, na.rm=TRUE),med_2000= median(Ddec2000.Hz, na.rm= TRUE),med_2500 = median(Ddec2500.Hz, na.rm=TRUE), med_3150 = median(Ddec3150.Hz, na.rm=TRUE),med_4000 = median(Ddec4000.Hz, na.rm=TRUE), med_5000 = median(Ddec5000.Hz, na.rm=TRUE), med_6300 = median(Ddec6300.Hz, na.rm=TRUE),med_8000= median(Ddec8000.Hz, na.rm= TRUE),med_10000 = median(Ddec10000.Hz, na.rm=TRUE), med_12500 = median(Ddec12500.Hz, na.rm=TRUE),med_16000 = median(Ddec16000.Hz, na.rm=TRUE), med_0.3= median(Ddec0.3.Hz, na.rm=TRUE), med_0.4= median(Ddec0.4.Hz, na.rm=TRUE), med_0.5= median(Ddec0.5.Hz, na.rm= TRUE), med_0.6= median(Ddec0.6.Hz, na.rm=TRUE), med_0.8= median(Ddec0.8.Hz, na.rm= TRUE))
+
+melted_all_sites_AEONSeason <- melt(all_sites_AEONSeason, id= c("season", "site"), variable.name= "TOL_band",
+                                value.name= "med_seasonal_SPL")
 
 
+melted_all_sites_AEONSeason$TOL_band = factor(melted_all_sites_AEONSeason$TOL_band,
+                                        levels= c("med_0.3", "med_0.4", "med_0.5", "med_0.6", "med_0.8", "med_1.0", "med_1.3", "med_1.6", "med_2.0", "med_2.5", "med_3.1", "med_4.0", "med_5.0", "med_6.3", "med_8.0", "med_10", "med_13", "med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300", "med_8000","med_10000","med_12500", "med_16000"),
+                                        labels= c("0.3", "0.4", "0.5", "0.6", "0.8", "1.0", "1.3", "1.6", "2.0", "2.5", "3.1", "4.0", "5.0", "6.3", "8.0", "10", "13", "16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000", "10000", "12500", "16000"))
+
+ggplot(melted_all_sites_AEONSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+  geom_point(size= 1)+ geom_line() +
+  facet_wrap(factor(site, levels = c('AEON1', 'AEON2', 'AEON3', 'AEON4', 'AEON5'))~., ncol= 3)+
+  theme_bw()+
+  xlab("Third-octave band (Hz)")+
+  ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
+  scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
+  guides(color= guide_legend(title= "Season"))+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+###limiting freq range###
+all_sites_AEONSeason2<- all_sites_AEON %>% 
+  group_by(season, site) %>% 
+  dplyr::summarize(med_16 = median(Ddec16.Hz, na.rm=TRUE), med_20= median(Ddec20.Hz, na.rom= TRUE), med_25 = median(Ddec25.Hz, na.rm=TRUE), med_31.5 = median(Ddec31.Hz, na.rm=TRUE), med_40 = median(Ddec40.Hz, na.rm=TRUE), med_50 = median(Ddec50.Hz, na.rm=TRUE), med_63 = median(Ddec63.Hz, na.rm=TRUE),med_80 = median(Ddec80.Hz, na.rm=TRUE), med_100 = median(Ddec100.Hz, na.rm=TRUE), med_125 = median(Ddec125.Hz, na.rm=TRUE),med_160 = median(Ddec160.Hz, na.rm=TRUE), med_200 = median(Ddec200.Hz, na.rm=TRUE), med_250 = median(Ddec250.Hz, na.rm=TRUE), med_315 = median(Ddec315.Hz, na.rm=TRUE), med_400 = median(Ddec400.Hz, na.rm=TRUE),med_500 = median(Ddec500.Hz, na.rm=TRUE), med_630 = median(Ddec630.Hz, na.rm=TRUE), med_800 = median(Ddec800.Hz, na.rm=TRUE),med_1000 = median(Ddec1000.Hz, na.rm=TRUE), med_1250 = median(Ddec1250.Hz, na.rm=TRUE), med_1600 = median(Ddec1600.Hz, na.rm=TRUE),med_2000= median(Ddec2000.Hz, na.rm= TRUE),med_2500 = median(Ddec2500.Hz, na.rm=TRUE), med_3150 = median(Ddec3150.Hz, na.rm=TRUE),med_4000 = median(Ddec4000.Hz, na.rm=TRUE), med_5000 = median(Ddec5000.Hz, na.rm=TRUE), med_6300 = median(Ddec6300.Hz, na.rm=TRUE),med_8000= median(Ddec8000.Hz, na.rm= TRUE))
+
+melted_all_sites_AEONSeason2 <- melt(all_sites_AEONSeason2, id= c("season", "site"), variable.name= "TOL_band",
+                                value.name= "med_seasonal_SPL")
+
+melted_all_sites_AEONSeason2$TOL_band = factor(melted_all_sites_AEONSeason2$TOL_band,
+                                        levels= c( "med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300", "med_8000"),
+                                        labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300", "8000"))
+
+ggplot(melted_all_sites_AEONSeason2, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+  geom_point(size= 1)+ geom_line() +
+  facet_wrap(factor(site, levels = c('AEON1', 'AEON2', 'AEON3', 'AEON4', 'AEON5'))~., ncol= 3)+
+  theme_bw()+
+  xlab("Third-octave band (Hz)")+
+  ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
+  scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
+  guides(color= guide_legend(title= "Season"))+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+#ggplot(AEON5_Feb, aes(x= UTC, y = Ddec125.Hz))+
+  geom_line()
 
 ```
