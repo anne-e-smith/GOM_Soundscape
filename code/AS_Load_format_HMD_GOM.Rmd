@@ -218,10 +218,10 @@ AEON4 <- AEON4_Jan %>%
   full_join(AEON4_Jul)
 AEON4$site = "AEON4"
 
-AEON5_Feb<- read.csv(here("data/Feb21_AEON5.csv"))
-AEON5_Feb <- AEON5_Feb[-c(2:11, 57:81)]
-colnames(AEON5_Feb)[1] <- "UTC"
-AEON5_Feb$UTC <- as.POSIXct(AEON5_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
+#AEON5_Feb<- read.csv(here("data/Feb21_AEON5.csv"))
+#AEON5_Feb <- AEON5_Feb[-c(2:11, 57:81)]
+#colnames(AEON5_Feb)[1] <- "UTC"
+#AEON5_Feb$UTC <- as.POSIXct(AEON5_Feb$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 AEON5_Jan <- read.csv(here("data/Jan22_AEON5.csv"))
 AEON5_Jan <- AEON5_Jan[-c(2:11, 42:64)]
 colnames(AEON5_Jan)[1] <- "UTC"
@@ -232,7 +232,7 @@ colnames(AEON5_Jul)[1] <- "UTC"
 AEON5_Jul$UTC <- as.POSIXct(AEON5_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 
 AEON5 <- AEON5_Jan %>%
-  full_join(AEON5_Feb) %>%
+#  full_join(AEON5_Feb) %>%
   full_join(AEON5_Jul)
 AEON5$site = "AEON5"
 
@@ -505,5 +505,31 @@ ggplot(melted_all_sites_AEONSeason2, aes(x= TOL_band, y = med_seasonal_SPL, colo
 
 #ggplot(AEON5_Feb, aes(x= UTC, y = Ddec125.Hz))+
   geom_line()
+
+```
+#grouping by region
+```{r}
+LUBEC_TOL$Region = "N. Coastal"
+MDR_TOL$Region = "N. Coastal"
+MONHEGAN_TOL$Region = "N. Coastal"
+PORTLAND_TOL$Region = "N. Coastal"
+
+AEON4$Region = "JOB"
+
+YORK_TOL$Region = "S. Coastal"
+SB03_TOL$Region = "S. Coastal"
+AEON5$Region = "S. Coastal" 
+
+plotTimeseries(x=AEON5_Feb, column='Ddec8000.Hz', style='line', q=0)
+plotPSD(AEON5[2:23], style='quantile', q=0.99)+
+  labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
+  theme_bw()
+
+USTR01_TOL$Region = "Offshore"
+USTR03_TOL$Region = "Offshore"
+USTR11_TOL$Region = "Offshore"
+AEON3$Region = "Offshore"
+AEON2$Region = "Offshore"
+AEON1$Region = "Offshore"
 
 ```
