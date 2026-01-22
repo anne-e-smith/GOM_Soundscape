@@ -27,7 +27,9 @@ library(tcltk2) # handles interactively navigating to network file paths
 library(tidyverse)
 library(tictoc) # allows for time tracking of longer processes
 library(svDialogs) # allows for some interactive inputs
-SE<- function(x)sd(x)/sqrt(length(x))
+library(dplyr)
+library(gmodels)
+
 #source("AMP_pkgs_funs.R")
 ```
 
@@ -311,7 +313,7 @@ AEON3 <- binSoundscapeData(AEON3,
                   bin= "1hour",
                   method = c("median"),
                   binCount= FALSE)
-AEO32$site = "AEON3"
+AEON3$site = "AEON3"
 ```
 #AEON4
 ```{r}
@@ -814,7 +816,7 @@ SCoastal <- ggplot(melted_s.coastal_TOLSeason, aes(x= TOL_band, y = med_seasonal
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 plot(SCoastal)
 ```
-#offshore region- and testing
+#offshore
 ```{r}
 USTR01_TOL$Region = "Offshore"
 USTR03_TOL$Region = "Offshore"
@@ -913,13 +915,145 @@ all_regions$Region = factor(all_regions$Region,
                                         labels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))
 
 
-plotPSD(x=all_regions, style='quantile', q=0.01, by= 'season', facet= 'Region')+
-#  facet_wrap(factor(Region, levels = c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))~.)+
+all_regionsMed <- all_regions%>%
+  dplyr::group_by(season, Region)%>%
+  dplyr::summarise(
+    med_16 = median(TOL_16, na.rm= TRUE),
+    med_20= median(TOL_20, na.rm= TRUE),
+    med_31.5= median(TOL_31.5, na.rm= TRUE),
+    med_40= median(TOL_40, na.rm= TRUE),
+    med_50= median(TOL_50, na.rm= TRUE),
+    med_63= median(TOL_63, na.rm= TRUE),
+    med_80= median(TOL_80, na.rm= TRUE),
+    med_100= median(TOL_100, na.rm= TRUE),
+    med_125= median(TOL_125, na.rm= TRUE),
+    med_160= median(TOL_160, na.rm= TRUE),
+    med_200= median(TOL_200, na.rm= TRUE),,
+    med_250= median(TOL_250, na.rm= TRUE),
+    med_315= median(TOL_315, na.rm= TRUE),
+    med_400= median(TOL_400, na.rm= TRUE),
+    med_500= median(TOL_500, na.rm= TRUE),
+    med_630= median(TOL_630, na.rm= TRUE),
+    med_800= median(TOL_800, na.rm= TRUE),
+    med_1000= median(TOL_1000, na.rm= TRUE),
+    med_1250= median(TOL_1250, na.rm= TRUE),
+    med_1600= median(TOL_1600, na.rm= TRUE),
+    med_2000= median(TOL_2000, na.rm= TRUE),
+    med_2500= median(TOL_2500, na.rm= TRUE),
+    med_3150= median(TOL_3150, na.rm= TRUE),
+    med_4000= median(TOL_4000, na.rm= TRUE),
+    med_5000= median(TOL_5000, na.rm= TRUE),
+    med_6300= median(TOL_6300, na.rm= TRUE))
+
+all_regionsMed <- all_regionsMed %>%
+  pivot_longer(
+    cols= !(season:Region),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  ) 
+
+all_regionsLCI <- all_regions%>%
+  dplyr::group_by(season, Region)%>%
+  dplyr::summarise(
+    lci_16 = t.test(TOL_16, conf.level = 0.95)$conf.int[1],
+    lci_20= t.test(TOL_20, conf.level = 0.95)$conf.int[1],
+    lci_31.5= t.test(TOL_31.5, conf.level = 0.95)$conf.int[1],
+    lci_40= t.test(TOL_40, conf.level = 0.95)$conf.int[1],
+    lci_50= t.test(TOL_50, conf.level = 0.95)$conf.int[1],
+    lci_63= t.test(TOL_63, conf.level = 0.95)$conf.int[1],
+    lci_80= t.test(TOL_80, conf.level = 0.95)$conf.int[1],
+    lci_100= t.test(TOL_100, conf.level = 0.95)$conf.int[1],
+    lci_125= t.test(TOL_125, conf.level = 0.95)$conf.int[1],
+    lci_160= t.test(TOL_160, conf.level = 0.95)$conf.int[1],
+    lci_200= t.test(TOL_200, conf.level = 0.95)$conf.int[1],
+    lci_250= t.test(TOL_250, conf.level = 0.95)$conf.int[1],
+    lci_315= t.test(TOL_315, conf.level = 0.95)$conf.int[1],
+    lci_400= t.test(TOL_400, conf.level = 0.95)$conf.int[1],
+    lci_500= t.test(TOL_500, conf.level = 0.95)$conf.int[1],
+    lci_630= t.test(TOL_630, conf.level = 0.95)$conf.int[1],
+    lci_800= t.test(TOL_800, conf.level = 0.95)$conf.int[1],
+    lci_1000= t.test(TOL_1000, conf.level = 0.95)$conf.int[1],
+    lci_1250= t.test(TOL_1250, conf.level = 0.95)$conf.int[1],
+    lci_1600= t.test(TOL_1600, conf.level = 0.95)$conf.int[1],
+    lci_2000= t.test(TOL_2000, conf.level = 0.95)$conf.int[1],
+    lci_2500= t.test(TOL_2500, conf.level = 0.95)$conf.int[1],
+    lci_3150= t.test(TOL_3150, conf.level = 0.95)$conf.int[1],
+    lci_4000= t.test(TOL_4000, conf.level = 0.95)$conf.int[1],
+    lci_5000= t.test(TOL_5000, conf.level = 0.95)$conf.int[1],
+    lci_6300= t.test(TOL_6300, conf.level = 0.95)$conf.int[1])
+
+all_regionsLCI <- all_regionsLCI %>%
+  pivot_longer(
+    cols= !(season:Region),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  ) 
+
+all_regionsUCI <- all_regions%>%
+  dplyr::group_by(season, Region)%>%
+  dplyr::summarise(
+    uci_16 = t.test(TOL_16, conf.level = 0.95)$conf.int[2],
+    uci_20 = t.test(TOL_20, conf.level = 0.95)$conf.int[2],
+    uci_31.5 = t.test(TOL_31.5, conf.level = 0.95)$conf.int[2],
+    uci_40 = t.test(TOL_40, conf.level = 0.95)$conf.int[2],
+    uci_50 = t.test(TOL_50, conf.level = 0.95)$conf.int[2],
+    uci_63 = t.test(TOL_63, conf.level = 0.95)$conf.int[2],
+    uci_80 = t.test(TOL_80, conf.level = 0.95)$conf.int[2],
+    uci_100 = t.test(TOL_100, conf.level = 0.95)$conf.int[2],
+    uci_125 = t.test(TOL_125, conf.level = 0.95)$conf.int[2],
+    uci_160 = t.test(TOL_160, conf.level = 0.95)$conf.int[2],
+    uci_200 = t.test(TOL_200, conf.level = 0.95)$conf.int[2],
+    uci_250 = t.test(TOL_250, conf.level = 0.95)$conf.int[2],
+    uci_315 = t.test(TOL_315, conf.level = 0.95)$conf.int[2],
+    uci_400 = t.test(TOL_400, conf.level = 0.95)$conf.int[2],
+    uci_500 = t.test(TOL_500, conf.level = 0.95)$conf.int[2],
+    uci_630 = t.test(TOL_630, conf.level = 0.95)$conf.int[2],
+    uci_800 = t.test(TOL_800, conf.level = 0.95)$conf.int[2],
+    uci_1000 = t.test(TOL_1000, conf.level = 0.95)$conf.int[2],
+    uci_1250 = t.test(TOL_1250, conf.level = 0.95)$conf.int[2],
+    uci_1600 = t.test(TOL_1600, conf.level = 0.95)$conf.int[2],
+    uci_2000 = t.test(TOL_2000, conf.level = 0.95)$conf.int[2],
+    uci_2500 = t.test(TOL_2500, conf.level = 0.95)$conf.int[2],
+    uci_3150 = t.test(TOL_3150, conf.level = 0.95)$conf.int[2],
+    uci_4000 = t.test(TOL_4000, conf.level = 0.95)$conf.int[2],
+    uci_5000 = t.test(TOL_5000, conf.level = 0.95)$conf.int[2],
+    uci_6300 = t.test(TOL_6300, conf.level = 0.95)$conf.int[2])
+
+all_regionsUCI <- all_regionsUCI %>%
+  pivot_longer(
+    cols= !(season:Region),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  ) 
+
+long_all_regions <- all_regionsMed %>%
+  full_join(all_regionsLCI) %>%
+  full_join(all_regionsUCI)
+
+long_all_regions$TOL_band = factor(long_all_regions$TOL_band,
+                                        levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
+                                        labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
+
+ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
+  geom_point(size= 1)+ 
+  geom_ribbon(aes(ymin= lci,
+                  ymax= uci),
+              fill= "grey")+
+  facet_wrap(factor(Region, levels = c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))~.)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
-  scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
-  guides(color= guide_legend(title= "Season"))
+  guides(color= guide_legend(title= "Season"))+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+all_regionsUCI <- all_regions%>%
+  dplyr::group_by(season, Region)%>%
+  dplyr::summarise(
+    uci16= ci(TOL_16, na.rm= TRUE)[2])
+
 
 ```
