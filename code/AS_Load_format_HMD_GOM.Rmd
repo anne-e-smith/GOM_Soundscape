@@ -330,10 +330,10 @@ AEON4_Jul <- AEON4_Jul[-c(2:27, 68:94)]
 colnames(AEON4_Jul)[1] <- "UTC"
 AEON4_Jul$UTC <- as.POSIXct(AEON4_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 
-AEON4 <- AEON4_Jan %>%
-  full_join(AEON4_Feb) %>%
-  full_join(AEON4_Jul)
-AEON4 <- AEON4[-c(2:3, 32:41)]
+AEON4 <- AEON4_Jul %>%
+#  full_join(AEON4_Feb) %>%
+  full_join(AEON4_Jan)
+AEON4 <- AEON4[-c(2:13)]
 
 colnames(AEON4)[2] <- "TOL_16"
 colnames(AEON4)[3] <- "TOL_20"
@@ -386,7 +386,7 @@ AEON4$season = case_when(AEON4$month == 1 ~ "Winter",
                             AEON4$month == 10 ~ "Fall",
                             AEON4$month == 11 ~ "Fall",
                             AEON4$month == 12 ~ "Winter")
-
+runSoundscapeExplorer(AEON4)
 ```
 #AEON5
 ```{r}
@@ -404,8 +404,9 @@ colnames(AEON5_Jul)[1] <- "UTC"
 AEON5_Jul$UTC <- as.POSIXct(AEON5_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 
 #AEON5 <- AEON5_Feb %>%
-#  full_join(AEON5_Jul)%>%
-#  full_join(AEON5_Jan)
+  full_join(AEON5_Jul)%>%
+  full_join(AEON5_Jan)
+#AEON5 <- AEON5[-c(2:3, 32:56 )]
 
 AEON5 <- AEON5_Jul %>%
   full_join(AEON5_Jan)
@@ -446,6 +447,7 @@ AEON5 <- binSoundscapeData(AEON5,
                   binCount= FALSE)
 
 AEON5$site = "AEON5"
+
 ```
 #plots
 ```{r}
