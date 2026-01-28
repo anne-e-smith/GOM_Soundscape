@@ -404,8 +404,8 @@ colnames(AEON5_Jul)[1] <- "UTC"
 AEON5_Jul$UTC <- as.POSIXct(AEON5_Jul$UTC, format= "%d-%b-%Y %H:%M", tz = "GMT")
 
 #AEON5 <- AEON5_Feb %>%
-  full_join(AEON5_Jul)%>%
-  full_join(AEON5_Jan)
+#  full_join(AEON5_Jul)%>%
+#  full_join(AEON5_Jan)
 #AEON5 <- AEON5[-c(2:3, 32:56 )]
 
 AEON5 <- AEON5_Jul %>%
@@ -1051,11 +1051,16 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   guides(color= guide_legend(title= "Season"))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+#quantile
+```{r}
 
-all_regionsUCI <- all_regions%>%
-  dplyr::group_by(season, Region)%>%
-  dplyr::summarise(
-    uci16= ci(TOL_16, na.rm= TRUE)[2])
+all_quantiles <- data.frame(a= c("16", "20", "31.5","40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
+
+quant16 <- quantile(all_regions$TOL_16, c(0.05, 0.95), na.rm= TRUE) #these are for ALL sites across ALL seasons... will need to further break down somehow
+quant20 <- quantile(all_regions$TOL_20, c(0.05, 0.95), na.rm= TRUE)
+
+quant20df <- data.frame(id= names(quant20), values= unname(quant20))
 
 
 ```
