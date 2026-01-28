@@ -29,6 +29,7 @@ library(tictoc) # allows for time tracking of longer processes
 library(svDialogs) # allows for some interactive inputs
 library(dplyr)
 library(gmodels)
+library(data.table)
 
 #source("AMP_pkgs_funs.R")
 ```
@@ -906,16 +907,20 @@ ggplot(melted_all_regionsSeasonal, aes(x= TOL_band, y = med_seasonal_SPL, color=
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
-
+#USE THIS BELOW FOR ALL REGIONS WITH SHADING
 ```{r}
 runSoundscapeExplorer(all_regions)
+
+all_regions <- n.coastal_TOL %>%
+  full_join(s.coastal_TOL) %>%
+  full_join(AEON4) %>%
+  full_join(offshore_TOL)
 
 all_regions <- all_regions[-c(8, 36:40)]
 
 all_regions$Region = factor(all_regions$Region,
                                         levels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'),
                                         labels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))
-
 
 all_regionsMed <- all_regions%>%
   dplyr::group_by(season, Region)%>%
@@ -955,75 +960,65 @@ all_regionsMed <- all_regionsMed %>%
     values_drop_na = TRUE
   ) 
 
-all_regionsLCI <- all_regions%>%
-  dplyr::group_by(season, Region)%>%
-  dplyr::summarise(
-    lci_16 = t.test(TOL_16, conf.level = 0.95)$conf.int[1],
-    lci_20= t.test(TOL_20, conf.level = 0.95)$conf.int[1],
-    lci_31.5= t.test(TOL_31.5, conf.level = 0.95)$conf.int[1],
-    lci_40= t.test(TOL_40, conf.level = 0.95)$conf.int[1],
-    lci_50= t.test(TOL_50, conf.level = 0.95)$conf.int[1],
-    lci_63= t.test(TOL_63, conf.level = 0.95)$conf.int[1],
-    lci_80= t.test(TOL_80, conf.level = 0.95)$conf.int[1],
-    lci_100= t.test(TOL_100, conf.level = 0.95)$conf.int[1],
-    lci_125= t.test(TOL_125, conf.level = 0.95)$conf.int[1],
-    lci_160= t.test(TOL_160, conf.level = 0.95)$conf.int[1],
-    lci_200= t.test(TOL_200, conf.level = 0.95)$conf.int[1],
-    lci_250= t.test(TOL_250, conf.level = 0.95)$conf.int[1],
-    lci_315= t.test(TOL_315, conf.level = 0.95)$conf.int[1],
-    lci_400= t.test(TOL_400, conf.level = 0.95)$conf.int[1],
-    lci_500= t.test(TOL_500, conf.level = 0.95)$conf.int[1],
-    lci_630= t.test(TOL_630, conf.level = 0.95)$conf.int[1],
-    lci_800= t.test(TOL_800, conf.level = 0.95)$conf.int[1],
-    lci_1000= t.test(TOL_1000, conf.level = 0.95)$conf.int[1],
-    lci_1250= t.test(TOL_1250, conf.level = 0.95)$conf.int[1],
-    lci_1600= t.test(TOL_1600, conf.level = 0.95)$conf.int[1],
-    lci_2000= t.test(TOL_2000, conf.level = 0.95)$conf.int[1],
-    lci_2500= t.test(TOL_2500, conf.level = 0.95)$conf.int[1],
-    lci_3150= t.test(TOL_3150, conf.level = 0.95)$conf.int[1],
-    lci_4000= t.test(TOL_4000, conf.level = 0.95)$conf.int[1],
-    lci_5000= t.test(TOL_5000, conf.level = 0.95)$conf.int[1],
-    lci_6300= t.test(TOL_6300, conf.level = 0.95)$conf.int[1])
+quants= c(0.05, 0.95)
 
-all_regionsLCI <- all_regionsLCI %>%
-  pivot_longer(
-    cols= !(season:Region),
-    names_to= c(".value", "TOL_band"),
-    names_sep = "_",
-    values_drop_na = TRUE
-  ) 
+all_regionsQuant <- all_regions %>%
+  group_by(Region, season) %>%
+  summarize(quant05_16 = quantile(TOL_16, probs= quants[1], na.rm= TRUE),
+            quant95_16 = quantile(TOL_16, probs= quants[2], na.rm= TRUE),
+            quant05_20 = quantile(TOL_20, probs= quants[1], na.rm= TRUE),
+            quant95_20 = quantile(TOL_20, probs= quants[2], na.rm= TRUE),
+            quant05_31.5 = quantile(TOL_31.5, probs= quants[1], na.rm= TRUE),
+            quant95_31.5 = quantile(TOL_31.5, probs= quants[2], na.rm= TRUE),
+            quant05_40 = quantile(TOL_40, probs= quants[1], na.rm= TRUE),
+            quant95_40 = quantile(TOL_40, probs= quants[2], na.rm= TRUE),
+            quant05_50 = quantile(TOL_50, probs= quants[1], na.rm= TRUE),
+            quant95_50 = quantile(TOL_50, probs= quants[2], na.rm= TRUE),
+            quant05_63 = quantile(TOL_63, probs= quants[1], na.rm= TRUE),
+            quant95_63 = quantile(TOL_63, probs= quants[2], na.rm= TRUE),
+            quant05_80 = quantile(TOL_80, probs= quants[1], na.rm= TRUE),
+            quant95_80 = quantile(TOL_80, probs= quants[2], na.rm= TRUE),
+            quant05_100 = quantile(TOL_100, probs= quants[1], na.rm= TRUE),
+            quant95_100 = quantile(TOL_100, probs= quants[2], na.rm= TRUE),
+            quant05_125 = quantile(TOL_125, probs= quants[1], na.rm= TRUE),
+            quant95_125 = quantile(TOL_125, probs= quants[2], na.rm= TRUE),
+            quant05_160 = quantile(TOL_160, probs= quants[1], na.rm= TRUE),
+            quant95_160 = quantile(TOL_160, probs= quants[2], na.rm= TRUE),
+            quant05_200 = quantile(TOL_200, probs= quants[1], na.rm= TRUE),
+            quant95_200 = quantile(TOL_200, probs= quants[2], na.rm= TRUE),
+            quant05_250 = quantile(TOL_250, probs= quants[1], na.rm= TRUE),
+            quant95_250 = quantile(TOL_250, probs= quants[2], na.rm= TRUE),
+            quant05_315 = quantile(TOL_315, probs= quants[1], na.rm= TRUE),
+            quant95_315 = quantile(TOL_315, probs= quants[2], na.rm= TRUE),
+            quant05_400 = quantile(TOL_400, probs= quants[1], na.rm= TRUE),
+            quant95_400 = quantile(TOL_400, probs= quants[2], na.rm= TRUE),
+            quant05_500 = quantile(TOL_500, probs= quants[1], na.rm= TRUE),
+            quant95_500 = quantile(TOL_500, probs= quants[2], na.rm= TRUE),
+            quant05_630 = quantile(TOL_630, probs= quants[1], na.rm= TRUE),
+            quant95_630 = quantile(TOL_630, probs= quants[2], na.rm= TRUE),
+            quant05_800 = quantile(TOL_800, probs= quants[1], na.rm= TRUE),
+            quant95_800 = quantile(TOL_800, probs= quants[2], na.rm= TRUE),
+            quant05_1000 = quantile(TOL_1000, probs= quants[1], na.rm= TRUE),
+            quant95_1000 = quantile(TOL_1000, probs= quants[2], na.rm= TRUE),
+            quant05_1250 = quantile(TOL_1250, probs= quants[1], na.rm= TRUE),
+            quant95_1250 = quantile(TOL_1250, probs= quants[2], na.rm= TRUE),
+            quant05_1600 = quantile(TOL_1600, probs= quants[1], na.rm= TRUE),
+            quant95_1600 = quantile(TOL_1600, probs= quants[2], na.rm= TRUE),
+            quant05_2000 = quantile(TOL_2000, probs= quants[1], na.rm= TRUE),
+            quant95_2000 = quantile(TOL_2000, probs= quants[2], na.rm= TRUE),
+            quant05_2500 = quantile(TOL_2500, probs= quants[1], na.rm= TRUE),
+            quant95_2500 = quantile(TOL_2500, probs= quants[2], na.rm= TRUE),
+            quant05_3150 = quantile(TOL_3150, probs= quants[1], na.rm= TRUE),
+            quant95_3150 = quantile(TOL_3150, probs= quants[2], na.rm= TRUE),
+            quant05_4000 = quantile(TOL_4000, probs= quants[1], na.rm= TRUE),
+            quant95_4000 = quantile(TOL_4000, probs= quants[2], na.rm= TRUE),
+            quant05_5000 = quantile(TOL_5000, probs= quants[1], na.rm= TRUE),
+            quant95_5000 = quantile(TOL_5000, probs= quants[2], na.rm= TRUE),
+            quant05_6300 = quantile(TOL_6300, probs= quants[1], na.rm= TRUE),
+            quant95_6300 = quantile(TOL_6300, probs= quants[2], na.rm= TRUE))
 
-all_regionsUCI <- all_regions%>%
-  dplyr::group_by(season, Region)%>%
-  dplyr::summarise(
-    uci_16 = t.test(TOL_16, conf.level = 0.95)$conf.int[2],
-    uci_20 = t.test(TOL_20, conf.level = 0.95)$conf.int[2],
-    uci_31.5 = t.test(TOL_31.5, conf.level = 0.95)$conf.int[2],
-    uci_40 = t.test(TOL_40, conf.level = 0.95)$conf.int[2],
-    uci_50 = t.test(TOL_50, conf.level = 0.95)$conf.int[2],
-    uci_63 = t.test(TOL_63, conf.level = 0.95)$conf.int[2],
-    uci_80 = t.test(TOL_80, conf.level = 0.95)$conf.int[2],
-    uci_100 = t.test(TOL_100, conf.level = 0.95)$conf.int[2],
-    uci_125 = t.test(TOL_125, conf.level = 0.95)$conf.int[2],
-    uci_160 = t.test(TOL_160, conf.level = 0.95)$conf.int[2],
-    uci_200 = t.test(TOL_200, conf.level = 0.95)$conf.int[2],
-    uci_250 = t.test(TOL_250, conf.level = 0.95)$conf.int[2],
-    uci_315 = t.test(TOL_315, conf.level = 0.95)$conf.int[2],
-    uci_400 = t.test(TOL_400, conf.level = 0.95)$conf.int[2],
-    uci_500 = t.test(TOL_500, conf.level = 0.95)$conf.int[2],
-    uci_630 = t.test(TOL_630, conf.level = 0.95)$conf.int[2],
-    uci_800 = t.test(TOL_800, conf.level = 0.95)$conf.int[2],
-    uci_1000 = t.test(TOL_1000, conf.level = 0.95)$conf.int[2],
-    uci_1250 = t.test(TOL_1250, conf.level = 0.95)$conf.int[2],
-    uci_1600 = t.test(TOL_1600, conf.level = 0.95)$conf.int[2],
-    uci_2000 = t.test(TOL_2000, conf.level = 0.95)$conf.int[2],
-    uci_2500 = t.test(TOL_2500, conf.level = 0.95)$conf.int[2],
-    uci_3150 = t.test(TOL_3150, conf.level = 0.95)$conf.int[2],
-    uci_4000 = t.test(TOL_4000, conf.level = 0.95)$conf.int[2],
-    uci_5000 = t.test(TOL_5000, conf.level = 0.95)$conf.int[2],
-    uci_6300 = t.test(TOL_6300, conf.level = 0.95)$conf.int[2])
 
-all_regionsUCI <- all_regionsUCI %>%
+all_regionsQuant <- all_regionsQuant %>%
   pivot_longer(
     cols= !(season:Region),
     names_to= c(".value", "TOL_band"),
@@ -1032,18 +1027,19 @@ all_regionsUCI <- all_regionsUCI %>%
   ) 
 
 long_all_regions <- all_regionsMed %>%
-  full_join(all_regionsLCI) %>%
-  full_join(all_regionsUCI)
+  full_join(all_regionsQuant)
 
 long_all_regions$TOL_band = factor(long_all_regions$TOL_band,
                                         levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
 
 ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
-  geom_point(size= 1)+ 
-  geom_ribbon(aes(ymin= lci,
-                  ymax= uci),
-              fill= "grey")+
+  geom_ribbon(aes(ymin= quant05,
+                  ymax= quant95,
+              fill= season, color= season), linetype= 0, alpha= 0.2)+
+  scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
+  geom_point(size= 1)+ geom_line()+
+  guides(fill= guide_legend(title= "Season"))+
   facet_wrap(factor(Region, levels = c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))~.)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
@@ -1051,16 +1047,4 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   guides(color= guide_legend(title= "Season"))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-```
-#quantile
-```{r}
-
-all_quantiles <- data.frame(a= c("16", "20", "31.5","40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
-
-quant16 <- quantile(all_regions$TOL_16, c(0.05, 0.95), na.rm= TRUE) #these are for ALL sites across ALL seasons... will need to further break down somehow
-quant20 <- quantile(all_regions$TOL_20, c(0.05, 0.95), na.rm= TRUE)
-
-quant20df <- data.frame(id= names(quant20), values= unname(quant20))
-
-
 ```
