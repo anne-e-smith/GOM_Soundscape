@@ -126,7 +126,8 @@ LUBEC_HMD$UTC <- as.POSIXct(LUBEC_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "G
 MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymed.csv"))
 MDR_HMD$site = "MDR"
 MDR_HMD$UTC <- as.POSIXct(MDR_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
-USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_HMD_hourlymed_AS_Sep2023Jan2024removed.csv"))
+
+USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_AS_HMD_hourlymed.csv"))
 USTR01_HMD$site = "USTR01"
 USTR01_HMD$UTC <- as.POSIXct(USTR01_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 USTR03_HMD <- read.csv(here("data/NEFSC_GOM_USTR03_HMD_hourlymed.csv"))
@@ -1122,9 +1123,10 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
 
 ```{r}
 
-runSoundscapeExplorer(USTR01_HMD)
+runSoundscapeExplorer(oct2023_USTR01)
 
-
+oct2023_USTR01 <- USTR01_HMD %>%
+  filter(UTC >= as.POSIXct("2023-09-30 20:00:00") & UTC <= as.POSIXct("2023-11-01 04:00:00"))
 
 
 ```
