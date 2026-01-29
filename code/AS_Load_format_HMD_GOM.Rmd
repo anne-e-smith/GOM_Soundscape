@@ -387,7 +387,7 @@ AEON4$season = case_when(AEON4$month == 1 ~ "Winter",
                             AEON4$month == 10 ~ "Fall",
                             AEON4$month == 11 ~ "Fall",
                             AEON4$month == 12 ~ "Winter")
-runSoundscapeExplorer(AEON4)
+#runSoundscapeExplorer(AEON4)
 ```
 #AEON5
 ```{r}
@@ -599,6 +599,38 @@ USTR03_TOL <- createOctaveLevel(USTR03_HMD, type= 'tol')
 USTR11_TOL <- createOctaveLevel(USTR11_HMD, type= 'tol')
 YORK_TOL <- createOctaveLevel(YORK_HMD, type= 'tol')
 
+LUBEC_TOL$Region = "Lubec"
+MDR_TOL$Region = "N. Coastal"
+MONHEGAN_TOL$Region = "N. Coastal"
+PORTLAND_TOL$Region = "N. Coastal"
+n.coastal_TOL <- LUBEC_TOL %>%
+  full_join(MDR_TOL)%>%
+  full_join(MONHEGAN_TOL)%>%
+  full_join(PORTLAND_TOL)
+
+YORK_TOL$Region = "S. Coastal"
+SB03_TOL$Region = "S. Coastal"
+AEON5$Region = "S. Coastal" 
+s.coastal_TOL <- SB03_TOL %>%
+  full_join(YORK_TOL)%>%
+  full_join(AEON5)
+
+USTR01_TOL$Region = "Offshore"
+USTR03_TOL$Region = "Offshore"
+USTR11_TOL$Region = "Offshore"
+offshore_AEON <- AEON1 %>%
+  full_join(AEON2)%>%
+  full_join(AEON3)
+offshore_AEON$Region = "Offshore"
+offshore_TOL <- USTR01_TOL %>%
+  full_join(USTR03_TOL) %>%
+  full_join(USTR11_TOL) %>%
+  full_join(offshore_AEON)
+
+
+```
+#nefsc TOL plots- skip
+```{r}
 all_TOLSites <- LUBEC_TOL %>%
   full_join(MDR_TOL) %>%
   full_join(MONHEGAN_TOL) %>%
@@ -648,7 +680,7 @@ ggplot(melted_all_TOLSiteSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= s
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
-#AEON plots
+#AEON plots- skip
 ```{r}
 all_sites_AEON <- AEON1 %>%
   full_join(AEON2)%>%
@@ -872,7 +904,7 @@ offshore<- ggplot(melted_offshoreSiteSeason, aes(x= TOL_band, y = med_seasonal_S
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 plot(offshore)
 ```
-#all regions
+#all regions- skip
 ```{r}
 
 all_regions <- n.coastal_TOL %>%
@@ -916,11 +948,29 @@ all_regions <- n.coastal_TOL %>%
   full_join(AEON4) %>%
   full_join(offshore_TOL)
 
+all_regions$month <- month(all_regions$UTC)
+
+all_regions$season = case_when(all_regions$month == 1 ~ "Winter",
+                            all_regions$month == 2 ~ "Winter",
+                            all_regions$month == 3 ~ "Spring",
+                            all_regions$month == 4 ~ "Spring",
+                            all_regions$month == 5 ~ "Spring",
+                            all_regions$month == 6 ~ "Summer",
+                            all_regions$month == 7 ~ "Summer",
+                            all_regions$month == 8 ~ "Summer",
+                            all_regions$month == 9 ~ "Fall",
+                            all_regions$month == 10 ~ "Fall",
+                            all_regions$month == 11 ~ "Fall",
+                            all_regions$month == 12 ~ "Winter")
+
 all_regions <- all_regions[-c(8, 36:40)]
 
 all_regions$Region = factor(all_regions$Region,
                                         levels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'),
                                         labels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))
+all_regions$season = factor(all_regions$season,
+                                        levels= c("Winter", "Spring", "Summer", "Fall"),
+                                        labels= c("Winter", "Spring", "Summer", "Fall"))
 
 all_regionsMed <- all_regions%>%
   dplyr::group_by(season, Region)%>%
@@ -1036,7 +1086,7 @@ long_all_regions$TOL_band = factor(long_all_regions$TOL_band,
 ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
   geom_ribbon(aes(ymin= quant05,
                   ymax= quant95,
-              fill= season, color= season), linetype= 0, alpha= 0.2)+
+              fill= season, color= season), linetype= 1, alpha= 0.1)+
   scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   geom_point(size= 1)+ geom_line()+
   guides(fill= guide_legend(title= "Season"))+
