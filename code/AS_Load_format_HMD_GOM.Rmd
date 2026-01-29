@@ -373,20 +373,20 @@ AEON4 <- binSoundscapeData(AEON4,
 
 AEON4$site = "AEON4"
 AEON4$Region = "JOB"
-AEON4$month <- month(AEON4$UTC)
+#AEON4$month <- month(AEON4$UTC)
 
-AEON4$season = case_when(AEON4$month == 1 ~ "Winter",
-                            AEON4$month == 2 ~ "Winter",
-                            AEON4$month == 3 ~ "Spring",
-                            AEON4$month == 4 ~ "Spring",
-                            AEON4$month == 5 ~ "Spring",
-                            AEON4$month == 6 ~ "Summer",
-                            AEON4$month == 7 ~ "Summer",
-                            AEON4$month == 8 ~ "Summer",
-                            AEON4$month == 9 ~ "Fall",
-                            AEON4$month == 10 ~ "Fall",
-                            AEON4$month == 11 ~ "Fall",
-                            AEON4$month == 12 ~ "Winter")
+#AEON4$season = case_when(AEON4$month == 1 ~ "Winter",
+#                            AEON4$month == 2 ~ "Winter",
+#                            AEON4$month == 3 ~ "Spring",
+ #                           AEON4$month == 4 ~ "Spring",
+  #                          AEON4$month == 5 ~ "Spring",
+   #                         AEON4$month == 6 ~ "Summer",
+    #                        AEON4$month == 7 ~ "Summer",
+#                            AEON4$month == 8 ~ "Summer",
+ #                           AEON4$month == 9 ~ "Fall",
+  #                          AEON4$month == 10 ~ "Fall",
+  #                          AEON4$month == 11 ~ "Fall",
+   #                         AEON4$month == 12 ~ "Winter")
 #runSoundscapeExplorer(AEON4)
 ```
 #AEON5
@@ -941,7 +941,7 @@ ggplot(melted_all_regionsSeasonal, aes(x= TOL_band, y = med_seasonal_SPL, color=
 ```
 #USE THIS BELOW FOR ALL REGIONS WITH SHADING
 ```{r}
-runSoundscapeExplorer(all_regions)
+#runSoundscapeExplorer(all_regions)
 
 all_regions <- n.coastal_TOL %>%
   full_join(s.coastal_TOL) %>%
@@ -1086,9 +1086,9 @@ long_all_regions$TOL_band = factor(long_all_regions$TOL_band,
 ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
   geom_ribbon(aes(ymin= quant05,
                   ymax= quant95,
-              fill= season, color= season), linetype= 1, alpha= 0.1)+
+              fill= season, color= season), linetype= 1, linewidth= 0.2, alpha= 0.1)+
   scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
-  geom_point(size= 1)+ geom_line()+
+  geom_point(size= 1.5)+ geom_line(linewidth= 1)+
   guides(fill= guide_legend(title= "Season"))+
   facet_wrap(factor(Region, levels = c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))~.)+
   theme_bw()+
