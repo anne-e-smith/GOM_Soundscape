@@ -112,7 +112,7 @@ toc()
 
 ```{r Shiny_explorer}
 # explore data in shiny app, also helps figure out which viz function you're interested in
-runSoundscapeExplorer(USTR11_HMD)
+runSoundscapeExplorer(USTR01_HMD)
 
 ```
 
@@ -126,7 +126,7 @@ LUBEC_HMD$UTC <- as.POSIXct(LUBEC_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "G
 MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymed.csv"))
 MDR_HMD$site = "MDR"
 MDR_HMD$UTC <- as.POSIXct(MDR_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
-USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_HMD_hourlymed.csv"))
+USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_HMD_hourlymed_AS_Sep2023Jan2024removed.csv"))
 USTR01_HMD$site = "USTR01"
 USTR01_HMD$UTC <- as.POSIXct(USTR01_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 USTR03_HMD <- read.csv(here("data/NEFSC_GOM_USTR03_HMD_hourlymed.csv"))
@@ -372,7 +372,7 @@ AEON4 <- binSoundscapeData(AEON4,
                   binCount= FALSE)
 
 AEON4$site = "AEON4"
-AEON4$Region = "JOB"
+AEON4$Region = "Central"
 #AEON4$month <- month(AEON4$UTC)
 
 #AEON4$season = case_when(AEON4$month == 1 ~ "Winter",
@@ -387,7 +387,7 @@ AEON4$Region = "JOB"
   #                          AEON4$month == 10 ~ "Fall",
   #                          AEON4$month == 11 ~ "Fall",
    #                         AEON4$month == 12 ~ "Winter")
-#runSoundscapeExplorer(AEON4)
+runSoundscapeExplorer(USTR01_TOL)
 ```
 #AEON5
 ```{r}
@@ -599,7 +599,7 @@ USTR03_TOL <- createOctaveLevel(USTR03_HMD, type= 'tol')
 USTR11_TOL <- createOctaveLevel(USTR11_HMD, type= 'tol')
 YORK_TOL <- createOctaveLevel(YORK_HMD, type= 'tol')
 
-LUBEC_TOL$Region = "Lubec"
+LUBEC_TOL$Region = "Grand Manan"
 MDR_TOL$Region = "N. Coastal"
 MONHEGAN_TOL$Region = "N. Coastal"
 PORTLAND_TOL$Region = "N. Coastal"
@@ -779,21 +779,28 @@ n.coastal_TOL$season = case_when(n.coastal_TOL$month == 1 ~ "Winter",
                             n.coastal_TOL$month == 11 ~ "Fall",
                             n.coastal_TOL$month == 12 ~ "Winter")
 n.coastal_TOLSeason<- n.coastal_TOL %>% 
-  group_by(season, Region) %>% 
+  group_by(season, site) %>% 
   dplyr::summarize(med_16 = median(TOL_16, na.rm=TRUE), med_20= median(TOL_20, na.rm= TRUE), med_25 = median(TOL_25, na.rm=TRUE), med_31.5 = median(TOL_31.5, na.rm=TRUE), med_40 = median(TOL_40, na.rm=TRUE), med_50 = median(TOL_50, na.rm=TRUE), med_63 = median(TOL_63, na.rm=TRUE),med_80 = median(TOL_80, na.rm=TRUE), med_100 = median(TOL_100, na.rm=TRUE), med_125 = median(TOL_125, na.rm=TRUE),med_160 = median(TOL_160, na.rm=TRUE), med_200 = median(TOL_200, na.rm=TRUE), med_250 = median(TOL_250, na.rm=TRUE), med_315 = median(TOL_315, na.rm=TRUE), med_400 = median(TOL_400, na.rm=TRUE),med_500 = median(TOL_500, na.rm=TRUE), med_630 = median(TOL_630, na.rm=TRUE), med_800 = median(TOL_800, na.rm=TRUE),med_1000 = median(TOL_1000, na.rm=TRUE), med_1250 = median(TOL_1250, na.rm=TRUE), med_1600 = median(TOL_1600, na.rm=TRUE),med_2000= median(TOL_2000, na.rm= TRUE),med_2500 = median(TOL_2500, na.rm=TRUE), med_3150 = median(TOL_3150, na.rm=TRUE),med_4000 = median(TOL_4000, na.rm=TRUE), med_5000 = median(TOL_5000, na.rm=TRUE), med_6300 = median(TOL_6300, na.rm=TRUE))
 
-melted_n.coastal_TOLSeason <- melt(n.coastal_TOLSeason, id= c("season", "Region"), variable.name= "TOL_band",
-                                value.name= "med_seasonal_SPL")
+#melted_n.coastal_TOLSeason <- melt(n.coastal_TOLSeason, id= c("season", "Region"), variable.name= "TOL_band",
+  #                              value.name= "med_seasonal_SPL")
+melted_n.coastal_TOLSeason <- n.coastal_TOLSeason %>%
+  pivot_longer(
+    cols= !(season:site),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  )
 
 melted_n.coastal_TOLSeason$TOL_band = factor(melted_n.coastal_TOLSeason$TOL_band,
-                                        levels= c("med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300"),
+                                        levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
 melted_n.coastal_TOLSeason$season = factor(melted_n.coastal_TOLSeason$season,
                                         levels= c("Winter", "Spring", "Summer", "Fall"),
                                         labels= c("Winter", "Spring", "Summer", "Fall"))
-NCoastal <- ggplot(melted_n.coastal_TOLSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+NCoastal <- ggplot(melted_n.coastal_TOLSeason, aes(x= TOL_band, y = med, color= season, group= season))+
   geom_point(size= 1)+ geom_line() +
-  facet_wrap(factor(Region, levels = c('Lubec', 'N. Coastal'))~., ncol= 2)+
+  facet_wrap(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland'))~., ncol= 2)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
@@ -831,16 +838,23 @@ s.coastal_TOLSeason<- s.coastal_TOL %>%
   group_by(season, site) %>% 
   dplyr::summarize(med_16 = median(TOL_16, na.rm=TRUE), med_20= median(TOL_20, na.rm= TRUE), med_25 = median(TOL_25, na.rm=TRUE), med_31.5 = median(TOL_31.5, na.rm=TRUE), med_40 = median(TOL_40, na.rm=TRUE), med_50 = median(TOL_50, na.rm=TRUE), med_63 = median(TOL_63, na.rm=TRUE),med_80 = median(TOL_80, na.rm=TRUE), med_100 = median(TOL_100, na.rm=TRUE), med_125 = median(TOL_125, na.rm=TRUE),med_160 = median(TOL_160, na.rm=TRUE), med_200 = median(TOL_200, na.rm=TRUE), med_250 = median(TOL_250, na.rm=TRUE), med_315 = median(TOL_315, na.rm=TRUE), med_400 = median(TOL_400, na.rm=TRUE),med_500 = median(TOL_500, na.rm=TRUE), med_630 = median(TOL_630, na.rm=TRUE), med_800 = median(TOL_800, na.rm=TRUE),med_1000 = median(TOL_1000, na.rm=TRUE), med_1250 = median(TOL_1250, na.rm=TRUE), med_1600 = median(TOL_1600, na.rm=TRUE),med_2000= median(TOL_2000, na.rm= TRUE),med_2500 = median(TOL_2500, na.rm=TRUE), med_3150 = median(TOL_3150, na.rm=TRUE),med_4000 = median(TOL_4000, na.rm=TRUE), med_5000 = median(TOL_5000, na.rm=TRUE), med_6300 = median(TOL_6300, na.rm=TRUE))
 
-melted_s.coastal_TOLSeason <- melt(s.coastal_TOLSeason, id= c("season", "site"), variable.name= "TOL_band",
-                                value.name= "med_seasonal_SPL")
+#melted_s.coastal_TOLSeason <- melt(s.coastal_TOLSeason, id= c("season", "site"), variable.name= "TOL_band",
+#                                value.name= "med_seasonal_SPL")
+melted_s.coastal_TOLSeason <- s.coastal_TOLSeason %>%
+  pivot_longer(
+    cols= !(season:site),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  )
 
 melted_s.coastal_TOLSeason$TOL_band = factor(melted_s.coastal_TOLSeason$TOL_band,
-                                        levels= c("med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300"),
+                                        levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
 melted_s.coastal_TOLSeason$season = factor(melted_s.coastal_TOLSeason$season,
                                         levels= c("Winter", "Spring", "Summer", "Fall"),
                                         labels= c("Winter", "Spring", "Summer", "Fall"))
-SCoastal <- ggplot(melted_s.coastal_TOLSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+SCoastal <- ggplot(melted_s.coastal_TOLSeason, aes(x= TOL_band, y = med, color= season, group= season))+
   geom_point(size= 1)+ geom_line() +
   facet_wrap(factor(site, levels = c('SB03', 'York', 'AEON5'))~., ncol= 3)+
   theme_bw()+
@@ -881,21 +895,28 @@ offshore_TOL$season = case_when(offshore_TOL$month == 1 ~ "Winter",
                             offshore_TOL$month == 11 ~ "Fall",
                             offshore_TOL$month == 12 ~ "Winter")
 offshore_TOLSeasons<- offshore_TOL %>% 
-  group_by(season, Region) %>% 
+  group_by(season, site) %>% 
   dplyr::summarize(med_16 = median(TOL_16, na.rm=TRUE), med_20= median(TOL_20, na.rm= TRUE),  med_25 = median(TOL_25, na.rm=TRUE), med_31.5 = median(TOL_31.5, na.rm=TRUE), med_40 = median(TOL_40, na.rm=TRUE), med_50 = median(TOL_50, na.rm=TRUE), med_63 = median(TOL_63, na.rm=TRUE),med_80 = median(TOL_80, na.rm=TRUE), med_100 = median(TOL_100, na.rm=TRUE), med_125 = median(TOL_125, na.rm=TRUE),med_160 = median(TOL_160, na.rm=TRUE), med_200 = median(TOL_200, na.rm=TRUE), med_250 = median(TOL_250, na.rm=TRUE), med_315 = median(TOL_315, na.rm=TRUE), med_400 = median(TOL_400, na.rm=TRUE),med_500 = median(TOL_500, na.rm=TRUE), med_630 = median(TOL_630, na.rm=TRUE), med_800 = median(TOL_800, na.rm=TRUE),med_1000 = median(TOL_1000, na.rm=TRUE), med_1250 = median(TOL_1250, na.rm=TRUE), med_1600 = median(TOL_1600, na.rm=TRUE),med_2000= median(TOL_2000, na.rm= TRUE),med_2500 = median(TOL_2500, na.rm=TRUE), med_3150 = median(TOL_3150, na.rm=TRUE),med_4000 = median(TOL_4000, na.rm=TRUE), med_5000 = median(TOL_5000, na.rm=TRUE), med_6300 = median(TOL_6300, na.rm=TRUE))
 
-melted_offshoreSiteSeason <- melt(offshore_TOLSeasons, id= c("season", "Region"), variable.name= "TOL_band",
-                                value.name= "med_seasonal_SPL")
+#melted_offshoreSiteSeason <- melt(offshore_TOLSeasons, id= c("season", "Region"), variable.name= "TOL_band",
+#                                value.name= "med_seasonal_SPL")
+melted_offshoreSiteSeason <-offshore_TOLSeasons %>%
+  pivot_longer(
+    cols= !(season:site),
+    names_to= c(".value", "TOL_band"),
+    names_sep = "_",
+    values_drop_na = TRUE
+  )
 
 melted_offshoreSiteSeason$TOL_band = factor(melted_offshoreSiteSeason$TOL_band,
-                                        levels= c("med_16","med_20","med_25","med_31.5","med_40","med_50", "med_63","med_80","med_100", "med_125","med_160","med_200", "med_250","med_315","med_400", "med_500","med_630","med_800", "med_1000","med_1250","med_1600", "med_2000","med_2500","med_3150", "med_4000","med_5000","med_6300"),
+                                        levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
 melted_offshoreSiteSeason$season = factor(melted_offshoreSiteSeason$season,
                                         levels= c("Winter", "Spring", "Summer", "Fall"),
                                         labels= c("Winter", "Spring", "Summer", "Fall"))
-offshore<- ggplot(melted_offshoreSiteSeason, aes(x= TOL_band, y = med_seasonal_SPL, color= season, group= season))+
+offshore<- ggplot(melted_offshoreSiteSeason, aes(x= TOL_band, y = med, color= season, group= season))+
   geom_point(size= 1)+ geom_line() +
-  facet_wrap(factor(Region, levels = c('Offshore'))~., ncol= 1)+
+  facet_wrap(factor(site, levels = c('AEON1', 'AEON2', 'AEON3', 'USTR01', 'USTR03', 'USTR11'))~.)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
@@ -966,8 +987,8 @@ all_regions$season = case_when(all_regions$month == 1 ~ "Winter",
 all_regions <- all_regions[-c(8, 36:40)]
 
 all_regions$Region = factor(all_regions$Region,
-                                        levels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'),
-                                        labels= c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))
+                                        levels= c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'),
+                                        labels= c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'))
 all_regions$season = factor(all_regions$season,
                                         levels= c("Winter", "Spring", "Summer", "Fall"),
                                         labels= c("Winter", "Spring", "Summer", "Fall"))
@@ -1090,11 +1111,20 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
   scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   geom_point(size= 1.5)+ geom_line(linewidth= 1)+
   guides(fill= guide_legend(title= "Season"))+
-  facet_wrap(factor(Region, levels = c('Lubec','N. Coastal', 'S. Coastal', 'Offshore', 'JOB'))~.)+
+  facet_wrap(factor(Region, levels = c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'))~.)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   guides(color= guide_legend(title= "Season"))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+```{r}
+
+runSoundscapeExplorer(USTR01_HMD)
+
+
+
+
 ```
