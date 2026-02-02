@@ -123,7 +123,7 @@ runSoundscapeExplorer(USTR01_HMD)
 LUBEC_HMD <- read.csv(here("data/NEFSC_GOM_LUBEC_HMD_hourlymed.csv"))
 LUBEC_HMD$site = "Lubec"
 LUBEC_HMD$UTC <- as.POSIXct(LUBEC_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
-MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymed.csv"))
+MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymedAS.csv"))
 MDR_HMD$site = "MDR"
 MDR_HMD$UTC <- as.POSIXct(MDR_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 
@@ -143,6 +143,9 @@ PORTLAND_HMD <- read.csv(here("data/NEFSC_GOM_PORTLAND_HMD_hourlymed.csv"))
 PORTLAND_HMD$site = "Portland"
 PORTLAND_HMD$UTC <- as.POSIXct(PORTLAND_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 SB03_HMD <- read.csv(here("data/NEFSC_GOM_SB03_HMD_hourlymed.csv"))
+SB03_202210 <- read.csv(here("data/NEFSC_GOM_SB03_202210_HMD_hourlymedAS.csv"))
+SB03_HMD <- SB03_HMD %>%
+  full_join(SB03_202210)
 SB03_HMD$site = "SB03"
 SB03_HMD$label = "NC"
 SB03_HMD$binCount = "60"
@@ -157,6 +160,7 @@ YORK_HMD$binCount = "60"
 YORK_HMD$binCount = as.integer(YORK_HMD$binCount)
 YORK_HMD$UTC <- as.POSIXct(YORK_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 
+runSoundscapeExplorer(MDR_HMD)
 
 ```
 #AEON1
