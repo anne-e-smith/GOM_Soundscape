@@ -1125,3 +1125,29 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
   guides(color= guide_legend(title= "Season"))+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
+#USTR11 202309
+```{r}
+USTR11_202309 <- read.csv(here("data/NEFSC_GOM_USTR11_202309_HMD_hourlymedAS.csv"))
+USTR11_202309$UTC <- as.POSIXct(USTR11_202309$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
+
+USTR11_202309_LTSA <- plotLTSA(x= USTR11_202309, units= expression(paste("dB re 1 \u00b5Pa" ^ "2", "/Hz"), size= 16))+
+  theme_bw()+
+  theme(axis.text= element_text(size= 16),
+        axis.title= element_text(size= 18),
+        legend.text = element_text(size= 16),
+        legend.title= element_text(size= 18))
+
+USTR11_202309_PSD <- plotPSD(x=USTR11_202309, style='quantile', q=0.01)+
+  labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
+  theme_bw()+
+  theme(axis.text= element_text(size= 16),
+        axis.title= element_text(size= 18))
+
+ggsave(here("figs", "USTR11_202309_LTSA.png"), USTR11_202309_LTSA, width= 18, height= 12, units= "in")
+
+runSoundscapeExplorer(USTR11_202309)
+
+plot(USTR11_202309_LTSA)
+
+
+```
