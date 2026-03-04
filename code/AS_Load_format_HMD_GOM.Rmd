@@ -160,7 +160,7 @@ YORK_HMD$binCount = "60"
 YORK_HMD$binCount = as.integer(YORK_HMD$binCount)
 YORK_HMD$UTC <- as.POSIXct(YORK_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 
-runSoundscapeExplorer(MDR_HMD)
+#runSoundscapeExplorer(MDR_HMD)
 
 ```
 #AEON1
@@ -758,7 +758,7 @@ ggplot(melted_all_sites_AEONSeason2, aes(x= TOL_band, y = med_seasonal_SPL, colo
   geom_line()
 
 ```
-#N. coastal
+#N. coastal-skip
 ```{r}
 LUBEC_TOL$Region = "Grand Manan"
 MDR_TOL$Region = "N. Coastal"
@@ -816,7 +816,7 @@ melted_n.coastal_TOLSeason$season = factor(melted_n.coastal_TOLSeason$season,
 
 #plot(NCoastal)
 ```
-#S. coastal
+#S. coastal-skip
 ```{r}
 YORK_TOL$Region = "S. Coastal"
 SB03_TOL$Region = "S. Coastal"
@@ -871,7 +871,7 @@ s.coastal_TOL <- SB03_TOL %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 #plot(SCoastal)
 ```
-#offshore
+#offshore-skip
 ```{r}
 USTR01_TOL$Region = "Offshore"
 USTR03_TOL$Region = "Offshore"
@@ -1110,7 +1110,7 @@ long_all_regions$TOL_band = factor(long_all_regions$TOL_band,
                                         levels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"),
                                         labels= c("16", "20", "25", "31.5", "40", "50", "63", "80", "100", "125", "160", "200", "250", "315", "400", "500", "630", "800", "1000", "1250", "1600", "2000", "2500", "3150", "4000", "5000", "6300"))
 
-ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
+allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))+
   geom_ribbon(aes(ymin= quant05,
                   ymax= quant95,
               fill= season, color= season), linetype= 1, linewidth= 0.2, alpha= 0.1)+
@@ -1123,7 +1123,15 @@ ggplot(long_all_regions, aes(x= TOL_band, y= med, color= season, group= season))
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
   scale_color_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   guides(color= guide_legend(title= "Season"))+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size= 13.5),
+        axis.title= element_text(size= 18),
+        axis.text.y= element_text(size= 16),
+        legend.title= element_text(size= 18),
+        legend.text= element_text(size= 16),
+        strip.text= element_text(size=16))
+plot(allSeasonsTOLs)
+ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 16, height= 10, units= "in")
+
 ```
 #USTR11 202309
 ```{r}
