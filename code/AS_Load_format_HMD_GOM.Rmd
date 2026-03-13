@@ -518,7 +518,14 @@ SB03_LTSA = plotLTSA(x= SB03_HMD,
 
 allSites_LTSA = plotLTSA(x=ALL_sites, facet= 'site', units= expression(paste("dB re 1 \u00b5Pa" ^ "2", "/Hz")))+
   theme_bw() +
-  facet_grid(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'York', 'SB03', 'USTR01', 'USTR03', 'USTR11'))~.)
+  facet_grid(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'York', 'SB03', 'USTR01', 'USTR03', 'USTR11'))~.)+
+  theme(axis.text.x = element_text(size= 18),
+        axis.text.y= element_text(size= 18),
+       strip.text= element_text(size= 18),
+       legend.title= element_text(size= 18),
+       legend.text= element_text(size= 18))
+  
+  
 ggsave(here("figs", "allSites_LTSAs.png"), allSites_LTSA, width= 14, height= 12, units= "in")
 
 
