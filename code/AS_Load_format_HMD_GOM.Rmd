@@ -1124,7 +1124,7 @@ allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= seaso
   scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   geom_point(size= 1.5)+ geom_line(linewidth= 1)+
   guides(fill= guide_legend(title= "Season"))+
-  facet_wrap(factor(Region, levels = c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'))~.)+
+  facet_wrap(factor(Region, levels = c('Grand Manan', 'Central', 'N. Coastal', 'Offshore', 'S. Coastal'))~., ncol= 2)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
@@ -1137,7 +1137,7 @@ allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= seaso
         legend.text= element_text(size= 16),
         strip.text= element_text(size=16))
 plot(allSeasonsTOLs)
-ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 16, height= 10, units= "in")
+#ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 16, height= 10, units= "in")
 
 ```
 #USTR11 202309
