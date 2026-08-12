@@ -120,7 +120,7 @@ runSoundscapeExplorer(USTR01_HMD)
 
 ```{r}
 
-LUBEC_HMD <- read.csv(here("data/NEFSC_GOM_LUBEC_HMD_hourlymed.csv"))
+LUBEC_HMD <- read.csv(here("data/corrupt_removed_NEFSC_GOM_LUBEC_HMD_hourlymed.csv"))
 LUBEC_HMD$site = "Lubec"
 LUBEC_HMD$UTC <- as.POSIXct(LUBEC_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 MDR_HMD <- read.csv(here("data/NEFSC_GOM_MDR_HMD_hourlymedAS.csv"))
@@ -471,7 +471,7 @@ coastal_sites <- LUBEC_HMD %>% #coastal sites and SB03
 ALL_sites <- USTR_sites %>%
   full_join(coastal_sites)
 
-runSoundscapeExplorer(USTR_sites)
+#runSoundscapeExplorer(USTR_sites)
 
 plotPSD(x=SB03_HMD, style='quantile', q=0.99)+
   labs(y= (expression(paste("Power Spectral Density dB re 1 \u00b5Pa" ^ "2", "/Hz"))))+
@@ -1137,7 +1137,7 @@ allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= seaso
         legend.text= element_text(size= 16),
         strip.text= element_text(size=16))
 plot(allSeasonsTOLs)
-#ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 16, height= 10, units= "in")
+ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 14, height= 16, units= "in")
 
 ```
 #USTR11 202309
