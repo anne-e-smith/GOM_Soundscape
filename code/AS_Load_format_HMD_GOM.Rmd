@@ -1000,8 +1000,8 @@ all_regions$season = case_when(all_regions$month == 1 ~ "Winter",
 all_regions <- all_regions[-c(8, 36:40)]
 
 all_regions$Region = factor(all_regions$Region,
-                                        levels= c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'),
-                                        labels= c('Grand Manan','N. Coastal', 'S. Coastal', 'Offshore', 'Central'))
+                                        levels= c('Grand Manan', 'Central', 'N. Coastal', 'Offshore', 'S. Coastal'),
+                                        labels= c('1. Grand Manan','2. Central', '3. North Coastal', '4. Offshore', '5. South Coastal'))
 all_regions$season = factor(all_regions$season,
                                         levels= c("Winter", "Spring", "Summer", "Fall"),
                                         labels= c("Winter", "Spring", "Summer", "Fall"))
@@ -1124,7 +1124,7 @@ allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= seaso
   scale_fill_manual(values= c("#5761C0", "#4B8320", "#DB2207","#FFAB38"))+
   geom_point(size= 1.5)+ geom_line(linewidth= 1)+
   guides(fill= guide_legend(title= "Season"))+
-  facet_wrap(factor(Region, levels = c('Grand Manan', 'Central', 'N. Coastal', 'Offshore', 'S. Coastal'))~., ncol= 2)+
+  facet_wrap(factor(Region, levels = c('1. Grand Manan','2. Central', '3. North Coastal', '4. Offshore', '5. South Coastal'))~., ncol= 2)+
   theme_bw()+
   xlab("Third-octave band (Hz)")+
   ylab(expression(paste('Median sound pressure levels (db re 1 \u00b5Pa)')))+
