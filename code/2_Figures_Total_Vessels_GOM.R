@@ -8,12 +8,10 @@
 library(tidyverse)
 library(ggpubr)
 
-osetwd('C:/Users/rebecca.vanhoeck/Documents/GOM_vessels')
-
 #### LOAD DATA AND COMBINE NEFSC/AEON ####
 
-NEFSC_hp_all = read.csv("data_outputs/All_GOM_Vessel_Hourly_Presence_effortCorrected.csv", header = TRUE)
-AEON_hp_all = read.csv("data_outputs/All_AEON_vessel_hourly_presence.csv", header = TRUE)
+NEFSC_hp_all = read.csv("data/Vessels/All_GOM_Vessel_Hourly_Presence_effortCorrected.csv", header = TRUE)
+AEON_hp_all = read.csv("data/Vessels/All_AEON_vessel_hourly_presence.csv", header = TRUE)
 
 ### convert to local time
 #NEFSC
@@ -54,20 +52,20 @@ GOM_hp$site2 = case_when(GOM_hp$site == "LUBEC" ~ "LUBEC",
 
 
 ## add subregion
-GOM_hp$region = case_when(GOM_hp$site == "LUBEC" ~ "Grand Manan", 
-                          GOM_hp$site == "MDR" ~ "N. Coastal",
-                          GOM_hp$site == "MONHEGAN" ~ "N. Coastal",
-                          GOM_hp$site == "PORTLAND" ~ "N. Coastal",
-                          GOM_hp$site == "YORK" ~ "S. Coastal",
-                          GOM_hp$site == "SB03" ~ "S. Coastal",
-                          GOM_hp$site == "USTR01" ~ "Offshore",
-                          GOM_hp$site == "USTR03" ~ "Offshore",
-                          GOM_hp$site == "USTR11" ~ "Offshore",
-                          GOM_hp$site == "AEON1_NEC" ~ "Offshore",
-                          GOM_hp$site == "AEON2_ECS" ~ "Offshore",
-                          GOM_hp$site == "AEON3_GEB" ~ "Offshore",
-                          GOM_hp$site == "AEON4_JOB" ~ "Central",
-                          GOM_hp$site == "AEON5_WIB" ~ "S. Coastal")
+GOM_hp$region = case_when(GOM_hp$site == "LUBEC" ~ "1. Grand Manan", 
+                          GOM_hp$site == "MDR" ~ "3. North Coastal",
+                          GOM_hp$site == "MONHEGAN" ~ "3. North Coastal",
+                          GOM_hp$site == "PORTLAND" ~ "3. North Coastal",
+                          GOM_hp$site == "YORK" ~ "5. South Coastal",
+                          GOM_hp$site == "SB03" ~ "5. South Coastal",
+                          GOM_hp$site == "USTR01" ~ "4. Offshore",
+                          GOM_hp$site == "USTR03" ~ "4. Offshore",
+                          GOM_hp$site == "USTR11" ~ "4. Offshore",
+                          GOM_hp$site == "AEON1_NEC" ~ "4. Offshore",
+                          GOM_hp$site == "AEON2_ECS" ~ "4. Offshore",
+                          GOM_hp$site == "AEON3_GEB" ~ "4. Offshore",
+                          GOM_hp$site == "AEON4_JOB" ~ "2. Central",
+                          GOM_hp$site == "AEON5_WIB" ~ "5. South Coastal")
 
 # add variables for hour, day, month
 GOM_hp  = GOM_hp %>%
@@ -155,7 +153,8 @@ vesselsXhour = ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data
   theme(legend.title=element_blank())
 
 
-ggarrange(vesselsXhour, vesselsXMonth, ncol = 2, labels = c("A", "B"))
+comboPlot <- ggarrange(vesselsXhour, vesselsXMonth, ncol = 2, labels = c("A", "B"))
+ggsave(filename= "vesselPlot.png", plot= comboPlot, )
 
 ### Summarize within site
 
