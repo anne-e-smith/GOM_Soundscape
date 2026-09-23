@@ -176,7 +176,7 @@ diel_pres_site = GOM_hp %>%
 
 
 ### Plot by site
-ggplot(aes(x = month_EST, y = nHP_effort, fill = nHP_effort), data = month_pres_site)+ theme_bw()+
+month_bySite <- ggplot(aes(x = month_EST, y = nHP_effort, fill = nHP_effort), data = month_pres_site)+ theme_bw()+
   geom_bar(stat = "identity")+
   coord_polar(theta = "x", start = 0)+
   scale_fill_viridis_c(begin = 0, end = 1, limits = c(0,1), 
@@ -196,9 +196,12 @@ ggplot(aes(x = month_EST, y = nHP_effort, fill = nHP_effort), data = month_pres_
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
 
+plot(month_bySite)
+ggsave(here("figs", "month_bySite.png"), month_bySite, width= 14, height= 12, units= "in", dpi= 600)
+
 
 # Diel
-ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data = diel_pres_site)+ theme_bw()+
+diel_bySite <- ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data = diel_pres_site)+ theme_bw()+
   geom_bar(stat = "identity")+
   coord_polar(theta = "x", start = 0)+
   scale_fill_viridis_c(begin = 0, end = 1, limits = c(0,1), 
@@ -221,6 +224,8 @@ ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data = diel_pres_si
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
 
+plot(diel_bySite)
+ggsave(here("figs", "diel_bySite.png"), diel_bySite, width= 14, height= 12, units= "in", dpi= 600)
 
 
 

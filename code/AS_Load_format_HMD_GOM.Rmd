@@ -128,13 +128,13 @@ MDR_HMD$site = "MDR"
 MDR_HMD$UTC <- as.POSIXct(MDR_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 
 USTR01_HMD <- read.csv(here("data/NEFSC_GOM_USTR01_AS_HMD_hourlymed.csv"))
-USTR01_HMD$site = "USTR01"
+USTR01_HMD$site = "GEB01"
 USTR01_HMD$UTC <- as.POSIXct(USTR01_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 USTR03_HMD <- read.csv(here("data/NEFSC_GOM_USTR03_HMD_hourlymed.csv"))
-USTR03_HMD$site = "USTR03"
+USTR03_HMD$site = "GEB03"
 USTR03_HMD$UTC <- as.POSIXct(USTR03_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 USTR11_HMD <- read.csv(here("data/NEFSC_GOM_USTR11_HMD_hourlymed.csv"))
-USTR11_HMD$site = "USTR11"
+USTR11_HMD$site = "GEB11"
 USTR11_HMD$UTC <- as.POSIXct(USTR11_HMD$UTC, format= "%Y-%m-%dT%H:%M:%SZ", tz = "GMT")
 MONHEGAN_HMD <- read.csv(here("data/NEFSC_GOM_MONHEGAN_HMD_hourlymed.csv"))
 MONHEGAN_HMD$site = "Monhegan"
@@ -515,10 +515,11 @@ YORK_LTSA = plotLTSA(x= YORK_HMD,
 SB03_LTSA = plotLTSA(x= SB03_HMD,
                        title = "SB03")
 
+#ALL_sites dataframe from section above ("plots")
 
 allSites_LTSA = plotLTSA(x=ALL_sites, facet= 'site', units= expression(paste("dB re 1 \u00b5Pa" ^ "2", "/Hz")))+
   theme_bw() +
-  facet_grid(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'York', 'SB03', 'USTR01', 'USTR03', 'USTR11'))~.)+
+  facet_grid(factor(site, levels = c('Lubec', 'MDR', 'Monhegan', 'Portland', 'York', 'SB03', 'GEB01', 'GEB03', 'GEB11'))~.)+
   theme(axis.text.x = element_text(size= 18),
         axis.text.y= element_text(size= 18),
        strip.text= element_text(size= 18),
@@ -526,7 +527,7 @@ allSites_LTSA = plotLTSA(x=ALL_sites, facet= 'site', units= expression(paste("dB
        legend.text= element_text(size= 18))
   
   
-ggsave(here("figs", "allSites_LTSAs.png"), allSites_LTSA, width= 14, height= 12, units= "in")
+ggsave(here("figs", "allSites_LTSAs1.png"), allSites_LTSA, width= 14, height= 12, units= "in", dpi= 600)
 
 
 plot(allSites_LTSA)
@@ -1137,7 +1138,7 @@ allSeasonsTOLs <- ggplot(long_all_regions, aes(x= TOL_band, y= med, color= seaso
         legend.text= element_text(size= 16),
         strip.text= element_text(size=16))
 plot(allSeasonsTOLs)
-ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 14, height= 16, units= "in")
+ggsave(here("figs", "allSeasonsTOLs.png"), allSeasonsTOLs, width= 14, height= 16, units= "in", dpi= 600)
 
 ```
 #USTR11 202309
