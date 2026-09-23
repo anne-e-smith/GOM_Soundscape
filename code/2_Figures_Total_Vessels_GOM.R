@@ -7,6 +7,7 @@
 
 library(tidyverse)
 library(ggpubr)
+library(here)
 
 #### LOAD DATA AND COMBINE NEFSC/AEON ####
 
@@ -119,11 +120,12 @@ vesselsXMonth = ggplot(aes(x = month_EST, y = nHP_effort, fill = nHP_effort), da
   xlab("Month")+
   ylab("N hours present / Total deployment hours")+ 
   ylim(c(0,1))+
-  theme(text=element_text(size=20),
-        strip.background = element_rect(color = "white", fill = "black"),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(size= 13.5),
+        axis.title= element_text(size= 18),
+        axis.text.y= element_text(size= 16),
+        legend.title= element_text(size= 18),
+        legend.text= element_text(size= 16),
+        strip.text= element_text(size=16))+
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
 
@@ -144,29 +146,32 @@ vesselsXhour = ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data
   facet_wrap(vars(region), nrow = 3)+
   xlab("Hour (EST)")+
   ylab("N hours present / Total deployment hours")+
-  theme(text=element_text(size=20),
-        strip.background = element_rect(color = "white", fill = "black"),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(size= 13.5),
+        axis.title= element_text(size= 18),
+        axis.text.y= element_text(size= 16),
+        legend.title= element_text(size= 18),
+        legend.text= element_text(size= 16),
+        strip.text= element_text(size=16))+
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
 
 
+
 comboPlot <- ggarrange(vesselsXhour, vesselsXMonth, ncol = 2, labels = c("A", "B"))
-ggsave(filename= "vesselPlot.png", plot= comboPlot, )
+plot(comboPlot)
+ggsave(here("figs", "vesselCombo.png"), comboPlot, width= 14, height= 12, units= "in")
 
 ### Summarize within site
 
 # Calculate month summary: N hours present/N deployment hours
 month_pres_site = GOM_hp %>%
-  group_by(region, site, month_EST) %>%
+  group_by(region, site2, month_EST) %>%
   summarize(nHP = sum(ves_pres, na.rm = TRUE), nDep = n(), nHP_effort = nHP/nDep, percentHP = nHP_effort*100)
 
 
 # Calculate diel summary: N hours present/N deployment hours
 diel_pres_site = GOM_hp %>%
-  group_by(region,site, hour_EST) %>%
+  group_by(region,site2, hour_EST) %>%
   summarize(nHP = sum(ves_pres, na.rm = TRUE), nDep = n(), nHP_effort = nHP/nDep, percentHP = nHP_effort*100)
 
 
@@ -179,14 +184,14 @@ ggplot(aes(x = month_EST, y = nHP_effort, fill = nHP_effort), data = month_pres_
   scale_x_continuous(breaks=seq(0,12,1), 
                      minor_breaks = seq(0:12),
                      expand = c(0,0))+
-  facet_wrap(vars(site), nrow = 4)+
+  facet_wrap(vars(site2), nrow = 3)+
   xlab("Month")+
   ylab("N hours present / Total deployment hours")+ 
   ylim(c(0,1))+
   theme(text=element_text(size=20),
-        strip.background = element_rect(color = "white", fill = "black"),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
+        # strip.background = element_rect(color = "white", fill = "black"),
+        # strip.text.x = element_text(colour = "white", face = "bold"),
+        # strip.text.y = element_text(colour = "white", face = "bold"),
         plot.title = element_text(hjust = 0.5))+
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
@@ -205,13 +210,13 @@ ggplot(aes(x = hour_EST, y = nHP_effort, fill = nHP_effort), data = diel_pres_si
   scale_y_continuous(limits=c(0,1),
                      breaks=seq(0,1,0.25),
                      expand = c(0, 0))+
-  facet_wrap(vars(site), nrow = 3)+
+  facet_wrap(vars(site2), nrow = 3)+
   xlab("Hour (EST)")+
   ylab("N hours present / Total deployment hours")+
   theme(text=element_text(size=20),
-        strip.background = element_rect(color = "white", fill = "black"),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
+        # strip.background = element_rect(color = "white", fill = "black"),
+        # strip.text.x = element_text(colour = "white", face = "bold"),
+        # strip.text.y = element_text(colour = "white", face = "bold"),
         plot.title = element_text(hjust = 0.5))+
   #R turns the proportion values into bins in the legend when I change the title, so I'm removing it instead
   theme(legend.title=element_blank())
