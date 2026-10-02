@@ -54,11 +54,11 @@ GOM_hp$site2 = case_when(GOM_hp$site == "LUBEC" ~ "LUBEC",
 
 ## add subregion
 GOM_hp$region = case_when(GOM_hp$site == "LUBEC" ~ "1. Grand Manan", 
-                          GOM_hp$site == "MDR" ~ "3. North Coastal",
-                          GOM_hp$site == "MONHEGAN" ~ "3. North Coastal",
-                          GOM_hp$site == "PORTLAND" ~ "3. North Coastal",
-                          GOM_hp$site == "YORK" ~ "5. South Coastal",
-                          GOM_hp$site == "SB03" ~ "5. South Coastal",
+                          GOM_hp$site == "MDR" ~ "3. Northern Coastal",
+                          GOM_hp$site == "MONHEGAN" ~ "3. Northern Coastal",
+                          GOM_hp$site == "PORTLAND" ~ "3. Northern Coastal",
+                          GOM_hp$site == "YORK" ~ "5. Southern Coastal",
+                          GOM_hp$site == "SB03" ~ "5. Southern Coastal",
                           GOM_hp$site == "USTR01" ~ "4. Offshore",
                           GOM_hp$site == "USTR03" ~ "4. Offshore",
                           GOM_hp$site == "USTR11" ~ "4. Offshore",
@@ -66,7 +66,7 @@ GOM_hp$region = case_when(GOM_hp$site == "LUBEC" ~ "1. Grand Manan",
                           GOM_hp$site == "AEON2_ECS" ~ "4. Offshore",
                           GOM_hp$site == "AEON3_GEB" ~ "4. Offshore",
                           GOM_hp$site == "AEON4_JOB" ~ "2. Central",
-                          GOM_hp$site == "AEON5_WIB" ~ "5. South Coastal")
+                          GOM_hp$site == "AEON5_WIB" ~ "5. Southern Coastal")
 
 # add variables for hour, day, month
 GOM_hp  = GOM_hp %>%
